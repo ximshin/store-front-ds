@@ -1,0 +1,11 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="loader-24" clip-path="url(#clip0_4_18141)">
+<path id="Union" d="M12 0C18.6274 0 24 5.37258 24 12C24 18.6274 18.6274 24 12 24C5.37259 24 8.24674e-06 18.6274 0 12C0 5.37258 5.37258 0 12 0ZM12 2C6.47715 2 2 6.47715 2 12C2.00001 17.5228 6.47716 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" fill="black" fill-opacity="0.3"/>
+<path id="Intersect" d="M12 2C6.47715 2 2 6.47715 2 12C2 12.3375 2.01715 12.6711 2.0498 13H0.0419922C0.0147856 12.6702 0 12.3368 0 12C0 5.37258 5.37258 0 12 0V2Z" fill="black" fill-opacity="0.5"/>
+</g>
+<defs>
+<clipPath id="clip0_4_18141">
+<rect width="24" height="24" fill="white"/>
+</clipPath>
+</defs>
+</svg>

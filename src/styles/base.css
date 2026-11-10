@@ -1,0 +1,14 @@
+/* Minimal base for components and docs pages. Values come only from tokens. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font: var(--typo-paragraph-p1);
+  color: var(--text-primary);
+  background: var(--surface-default);
+  -webkit-font-smoothing: antialiased;
+}

@@ -1,0 +1,255 @@
+V	Primitive	white/100	COLOR	#FFFFFF
+V	Primitive	black/10	COLOR	#222222
+V	Primitive	red/60	COLOR	#FF4433
+V	Primitive	red/98-a95	COLOR	#FFF5F5F2
+V	Primitive	red/90-a95	COLOR	#FFD0CCF2
+V	Primitive	red/40	COLOR	#C21A0A
+V	Primitive	red/60-a20	COLOR	#FF443333
+V	Primitive	red/60-a10	COLOR	#FF44331A
+V	Primitive	yellow/50	COLOR	#EFB506
+V	Primitive	yellow/50-a20	COLOR	#EFB50633
+V	Primitive	yellow/30	COLOR	#866604
+V	Primitive	yellow/97-a95	COLOR	#FEFBF1F2
+V	Primitive	yellow/85-a95	COLOR	#F9E9B8F2
+V	Primitive	blue/45	COLOR	#0099E5
+V	Primitive	blue/45-a20	COLOR	#0099E533
+V	Primitive	blue/97-a95	COLOR	#F1FAFEF2
+V	Primitive	blue/85-a95	COLOR	#BAE3F7F2
+V	Primitive	blue/35	COLOR	#006DA3
+V	Primitive	green/40	COLOR	#3FA659
+V	Primitive	green/40-a20	COLOR	#3FA65933
+V	Primitive	green/97-a95	COLOR	#F5FBF6F2
+V	Primitive	green/85-a95	COLOR	#CBE6D2F2
+V	Primitive	green/30	COLOR	#227737
+V	Primitive	black/a3	COLOR	#00000008
+V	Primitive	grey/80	COLOR	#CCCCCC
+V	Primitive	grey/50	COLOR	#808080
+V	Primitive	grey/60	COLOR	#999999
+V	Primitive	grey/20	COLOR	#333333
+V	Primitive	grey/50-a70	COLOR	#808080B2
+V	Primitive	black/a5	COLOR	#0000000D
+V	Primitive	black/a8	COLOR	#00000014
+V	Primitive	black/a10	COLOR	#0000001A
+V	Primitive	black/a15	COLOR	#00000026
+V	Primitive	black/a20	COLOR	#00000033
+V	Primitive	black/a30	COLOR	#0000004D
+V	Primitive	black/a40	COLOR	#00000066
+V	Primitive	black/a50	COLOR	#00000080
+V	Primitive	black/a60	COLOR	#00000099
+V	Primitive	black/a75	COLOR	#000000BF
+V	Primitive	black/0	COLOR	#000000
+V	Primitive	black/a4	COLOR	#0000000A
+V	Primitive	black/a12	COLOR	#0000001F
+V	Primitive	azure/45	COLOR	#0073E6
+V	Primitive	azure/50	COLOR	#0080FF
+V	Primitive	azure/85	COLOR	#B3D9FF
+V	Primitive	orange/55	COLOR	#FE8D19
+V	Primitive	grey/85	COLOR	#D9D9D9
+V	Primitive	grey/90	COLOR	#E6E6E6
+V	Primitive	grey/93	COLOR	#EEEEEE
+V	Primitive	grey-cool/46	COLOR	#6B737E
+V	Primitive	grey-cool/47	COLOR	#74747D
+V	Primitive	grey-cool/58	COLOR	#919499
+V	Primitive	white/a10	COLOR	#FFFFFF1A
+V	Primitive	white/a50	COLOR	#FFFFFF80
+V	Primitive	white/a80	COLOR	#FFFFFFCC
+V	Primitive	white/a90	COLOR	#FFFFFFE5
+V	Primitive	font/sans	STRING	Inter
+V	Primitive	font/weight/regular	STRING	Regular
+V	Primitive	font/weight/medium	STRING	Medium
+V	Primitive	font/weight/semibold	STRING	Semi Bold
+V	Primitive	font/weight/bold	STRING	Bold
+V	Semantic	text/primary	COLOR	@black/10
+V	Semantic	text/primary-white	COLOR	@white/100
+V	Semantic	text/secondary	COLOR	@black/a50
+V	Semantic	text/disabled	COLOR	@black/a50
+V	Semantic	text/deprecated	COLOR	@black/a30
+V	Semantic	text/link	COLOR	@azure/45
+V	Semantic	text/success	COLOR	@green/30
+V	Semantic	text/info	COLOR	@blue/35
+V	Semantic	text/warning	COLOR	@yellow/30
+V	Semantic	text/danger	COLOR	@red/40
+V	Semantic	surface/action/primary	COLOR	@black/10
+V	Semantic	surface/subtle	COLOR	@black/a3
+V	Semantic	surface/disabled	COLOR	@black/a30
+V	Semantic	surface/active	COLOR	@black/a40
+V	Semantic	surface/secondary	COLOR	@black/a60
+V	Semantic	surface/secondary-2	COLOR	@black/a50
+V	Semantic	surface/secondary-light	COLOR	@black/a20
+V	Semantic	surface/action/primary-hover	COLOR	@black/a75
+V	Semantic	surface/default	COLOR	@white/100
+V	Semantic	surface/hover	COLOR	@black/a5
+V	Semantic	bg/success/primary	COLOR	@green/40
+V	Semantic	bg/success/light	COLOR	@green/40-a20
+V	Semantic	bg/success/pale	COLOR	@green/97-a95
+V	Semantic	bg/info/primary	COLOR	@blue/45
+V	Semantic	bg/info/light	COLOR	@blue/45-a20
+V	Semantic	bg/info/pale	COLOR	@blue/97-a95
+V	Semantic	bg/warning/primary	COLOR	@yellow/50
+V	Semantic	bg/warning/light	COLOR	@yellow/50-a20
+V	Semantic	bg/warning/pale	COLOR	@yellow/97-a95
+V	Semantic	bg/danger/primary	COLOR	@red/60
+V	Semantic	bg/danger/light	COLOR	@red/60-a20
+V	Semantic	bg/danger/hover	COLOR	@red/60-a10
+V	Semantic	bg/danger/pale	COLOR	@red/98-a95
+V	Semantic	border/input	COLOR	@black/a20
+V	Semantic	border/input-active	COLOR	@black/10
+V	Semantic	icon/primary	COLOR	@black/a50
+V	Semantic	icon/secondary	COLOR	@black/a30
+V	Semantic	icon/link	COLOR	@text/link
+V	Semantic	icon/primary-white	COLOR	@white/100
+V	Semantic	icon/success	COLOR	@green/40
+V	Semantic	icon/info	COLOR	@blue/45
+V	Semantic	icon/warning	COLOR	@yellow/50
+V	Semantic	icon/danger	COLOR	@red/60
+V	Semantic	icon/grey-overlay	COLOR	@grey/50-a70
+V	Semantic	icon/main-menu	COLOR	@grey-cool/47
+V	Semantic	border/input-hover	COLOR	@black/a60
+V	Semantic	border/disabled	COLOR	@black/a10
+V	Semantic	border/divider	COLOR	@black/a10
+V	Semantic	border/card	COLOR	@black/a10
+V	Semantic	border/warning	COLOR	@yellow/50
+V	Semantic	border/success	COLOR	@green/40
+V	Semantic	border/info	COLOR	@blue/45
+V	Semantic	border/danger	COLOR	@red/60
+V	Semantic	border/warning-pale	COLOR	@yellow/85-a95
+V	Semantic	border/hover-card	COLOR	@black/a30
+V	Semantic	border/success-pale	COLOR	@green/85-a95
+V	Semantic	border/info-pale	COLOR	@blue/85-a95
+V	Semantic	border/danger-pale	COLOR	@red/90-a95
+V	Semantic	text/input-hint	COLOR	@grey/50
+V	Semantic	text/price	COLOR	@black/10
+V	Semantic	text/sale	COLOR	@red/60
+V	Semantic	text/price-old	COLOR	@black/a30
+V	Semantic	surface/overlay	COLOR	@black/a60
+V	Semantic	surface/input/disabled	COLOR	@grey/90
+V	Semantic	surface/selected	COLOR	@grey-cool/46
+V	Semantic	surface/media/control	COLOR	@white/a80
+V	Semantic	surface/media/control-hover	COLOR	@white/a90
+V	Semantic	border/on-color	COLOR	@white/100
+V	Semantic	border/selected	COLOR	@azure/50
+V	Semantic	border/on-media	COLOR	@white/a50
+V	Semantic	icon/action-primary	COLOR	@black/a60
+V	Semantic	icon/strong	COLOR	@black/10
+V	Semantic	icon/on-color	COLOR	@white/100
+V	Semantic	icon/dropdown-arrow	COLOR	@grey-cool/58
+V	Semantic	icon/hint	COLOR	@grey/50
+V	Semantic	icon/media-indicator	COLOR	@black/a30
+V	Semantic	border/gift	COLOR	@red/60
+V	Dimension	font/size/15	FLOAT	15
+V	Dimension	font/size/13	FLOAT	13
+V	Dimension	font/size/14	FLOAT	14
+V	Dimension	font/size/16	FLOAT	16
+V	Dimension	space/2	FLOAT	2
+V	Dimension	space/4	FLOAT	4
+V	Dimension	space/8	FLOAT	8
+V	Dimension	space/12	FLOAT	12
+V	Dimension	space/16	FLOAT	16
+V	Dimension	space/20	FLOAT	20
+V	Dimension	space/24	FLOAT	24
+V	Dimension	space/28	FLOAT	28
+V	Dimension	space/32	FLOAT	32
+V	Dimension	space/40	FLOAT	40
+V	Dimension	space/44	FLOAT	44
+V	Dimension	space/48	FLOAT	48
+V	Dimension	space/0	FLOAT	0
+V	Dimension	radius/0	FLOAT	0
+V	Dimension	radius/2	FLOAT	2
+V	Dimension	radius/4	FLOAT	4
+V	Dimension	radius/8	FLOAT	8
+V	Dimension	radius/12	FLOAT	12
+V	Dimension	radius/full	FLOAT	999
+V	Dimension	stroke/normal	FLOAT	1.33
+V	Dimension	stroke/medium	FLOAT	1.5
+V	Dimension	stroke/bold	FLOAT	2
+V	Dimension	space/neg-1	FLOAT	-1
+V	Dimension	space/neg-2	FLOAT	-2
+V	Dimension	space/neg-4	FLOAT	-4
+V	Dimension	space/neg-8	FLOAT	-8
+V	Dimension	space/neg-12	FLOAT	-12
+V	Dimension	space/neg-16	FLOAT	-16
+V	Dimension	space/neg-24	FLOAT	-24
+V	Dimension	space/neg-28	FLOAT	-28
+V	Dimension	space/neg-32	FLOAT	-32
+V	Dimension	space/neg-36	FLOAT	-36
+V	Dimension	space/neg-40	FLOAT	-40
+V	Dimension	space/neg-44	FLOAT	-44
+V	Dimension	space/neg-48	FLOAT	-48
+V	Dimension	font/size/10	FLOAT	10
+V	Dimension	font/size/12	FLOAT	12
+V	Dimension	font/size/18	FLOAT	18
+V	Dimension	font/size/20	FLOAT	20
+V	Dimension	font/size/24	FLOAT	24
+V	Dimension	font/size/32	FLOAT	32
+V	Dimension	font/size/40	FLOAT	40
+V	Dimension	font/size/56	FLOAT	56
+V	Dimension	font/line-height/12	FLOAT	12
+V	Dimension	font/line-height/16	FLOAT	16
+V	Dimension	font/line-height/20	FLOAT	20
+V	Dimension	font/line-height/21	FLOAT	21
+V	Dimension	font/line-height/24	FLOAT	24
+V	Dimension	font/line-height/28	FLOAT	28
+V	Dimension	font/line-height/32	FLOAT	32
+V	Dimension	font/line-height/40	FLOAT	40
+V	Dimension	font/line-height/48	FLOAT	48
+V	Dimension	font/line-height/64	FLOAT	64
+V	Dimension	radius/6	FLOAT	6
+V	Dimension	radius/16	FLOAT	16
+V	Dimension	radius/24	FLOAT	24
+V	Dimension	stroke/thin	FLOAT	1
+V	Dimension	size/touch-min	FLOAT	44
+V	Dimension	stroke/heavy	FLOAT	3
+T	DS/Heading/H1	font/sans	font/weight/bold	font/size/24	font/line-height/32	0%
+T	DS/Heading/Page Title	font/sans	font/weight/bold	font/size/18	font/line-height/24	0%
+T	DS/Heading/Popup Title	font/sans	font/weight/bold	font/size/18	font/line-height/21	0%
+T	DS/Heading/Small Card Title	font/sans	font/weight/medium	font/size/16	font/line-height/24	0%
+T	DS/Heading/Group Title	font/sans	font/weight/bold	font/size/14	font/line-height/20	0%
+T	DS/Heading/H4	font/sans	font/weight/bold	font/size/16	font/line-height/24	0%
+T	DS/Paragraph/P1	font/sans	font/weight/regular	font/size/14	font/line-height/20	0%
+T	DS/Paragraph/P1-Bold	font/sans	font/weight/bold	font/size/14	font/line-height/20	0%
+T	DS/Paragraph/Tooltip	font/sans	font/weight/regular	font/size/12	font/line-height/20	0%
+T	DS/Form/Button L label	font/sans	font/weight/regular	font/size/18	120%	0%
+T	DS/Form/Button M label	font/sans	font/weight/regular	font/size/14	125%	0%
+T	DS/Form/Mob Input Label	font/sans	font/weight/regular	font/size/14	font/line-height/20	0%
+T	DS/Form/Mob Button label	font/sans	font/weight/regular	font/size/16	font/line-height/16	0%
+T	DS/Form/Input title	font/sans	font/weight/regular	font/size/14	font/line-height/16	0%
+T	DS/Form/Input text	font/sans	font/weight/regular	font/size/14	font/line-height/16	0%
+T	DS/Table/Table title	font/sans	font/weight/bold	font/size/13	font/line-height/16	0%
+T	DS/Table/Table text	font/sans	font/weight/regular	font/size/13	font/line-height/20	0%
+T	DS/Special/Small Tag	font/sans	font/weight/bold	font/size/10	font/line-height/12	0%
+T	DS/Special/Special 12 Medium	font/sans	font/weight/medium	font/size/12	font/line-height/16	0%
+T	DS/Special/Special 12 Regular	font/sans	font/weight/regular	font/size/12	font/line-height/16	0%
+T	DS/Special/Special 13 Regular	font/sans	font/weight/regular	font/size/13	font/line-height/16	0%
+T	DS/Special/Special 14 Medium	font/sans	font/weight/medium	font/size/14	font/line-height/16	0%
+T	DS/Special/Special 14 Bold	font/sans	font/weight/bold	font/size/14	font/line-height/16	0%
+T	DS/Special/Special 16 Regular	font/sans	font/weight/regular	font/size/16	font/line-height/24	0%
+T	DS/Special/Special 16 Medium	font/sans	font/weight/medium	font/size/16	font/line-height/24	0%
+T	DS/Form/Mob Input Text	font/sans	font/weight/regular	font/size/16	font/line-height/20	0%
+T	DS/Form/Button S label	font/sans	font/weight/regular	font/size/13	font/line-height/16	0%
+T	DS/Special/Counter	font/sans	font/weight/regular	font/size/10	font/line-height/16	0%
+T	DS/Display/XL	font/sans	font/weight/regular	font/size/56	font/line-height/64	0%
+T	DS/Display/L	font/sans	font/weight/regular	font/size/40	font/line-height/48	0%
+T	DS/Display/M	font/sans	font/weight/regular	font/size/32	font/line-height/40	0%
+T	DS/Display/S	font/sans	font/weight/regular	font/size/24	font/line-height/32	0%
+T	DS/Heading/H2	font/sans	font/weight/bold	font/size/20	font/line-height/28	0%
+T	DS/Paragraph/Lead	font/sans	font/weight/regular	font/size/18	font/line-height/24	0%
+T	DS/Price/L	font/sans	font/weight/bold	font/size/18	font/line-height/24	0%
+T	DS/Price/M	font/sans	font/weight/bold	font/size/16	font/line-height/24	0%
+T	DS/Price/S	font/sans	font/weight/bold	font/size/14	font/line-height/20	0%
+T	DS/Price/Old	font/sans	font/weight/regular	font/size/14	font/line-height/20	0%
+E	DS/Effect/focus-ring	DROP_SHADOW	0	0	5	0	#0080FF66
+E	DS/Effect/divider-bottom	INNER_SHADOW	0	-1	0	0	#0000001A
+E	DS/Shadow/m	DROP_SHADOW	0	16	24	0	#00000014
+E	DS/Shadow/s	DROP_SHADOW	0	4	8	0	#0000000A
+E	DS/Shadow/s	DROP_SHADOW	0	4	16	0	#0000000A
+E	DS/Shadow/s	DROP_SHADOW	0	4	24	0	#0000001F
+E	DS/Shadow/l	DROP_SHADOW	0	16	48	0	#0000004D
+E	DS/Shadow/s2	DROP_SHADOW	0	0	1	0	#0000000D
+E	DS/Shadow/s2	DROP_SHADOW	0	3	6	0	#0000001A
+E	DS/Shadow/s2	DROP_SHADOW	0	9	24	0	#00000033
+E	DS/Shadow/menu	DROP_SHADOW	0	8	32	0	#0000001A
+E	DS/Shadow/menu	DROP_SHADOW	0	0	0	1	#0000000D
+E	DS/Shadow/dropdown	DROP_SHADOW	0	8	32	0	#0000001A
+E	DS/Shadow/dropdown	DROP_SHADOW	0	0	0	1	#0000000D
+E	DS/Shadow/tooltip	DROP_SHADOW	0	8	20	2	#00000033
+E	DS/Shadow/edge	DROP_SHADOW	4	0	8	-4	#00000099
