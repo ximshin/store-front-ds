@@ -4,12 +4,16 @@
 import meta from './tokens/meta.json';
 import { gallery } from './showcase/gallery';
 
+const storybookUrl = import.meta.env.BASE_URL + 'storybook/';
 const semanticColors = meta.variables.filter((v) => v.type === 'COLOR' && v.collection === 'Semantic');
 </script>
 
 <template>
   <main class="showcase">
-    <h1 class="ds-text-display-m">Store Front DS — Vue</h1>
+    <header class="top">
+      <h1 class="ds-text-display-m">Store Front DS — Vue</h1>
+      <a class="ds-text-special-special-16-medium top__link" :href="storybookUrl">Каталог компонентів (Storybook) →</a>
+    </header>
 
     <section>
       <h2 class="ds-text-heading-h2">Цвета — Semantic</h2>
@@ -84,6 +88,19 @@ section {
   flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--space-16);
+}
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+.top h1 {
+  margin: 0;
+}
+.top__link {
+  color: var(--text-link);
 }
 .muted {
   color: var(--text-secondary);
