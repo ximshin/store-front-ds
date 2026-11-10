@@ -54,7 +54,7 @@ export const Checkout: Story = {
               </div>
               <div :style="section">
                 <SectionTitle size="m" title="Доставка" :show-action="false" />
-                <Select size="l" :show-label="false" :selected="false" model-value="Новою поштою" />
+                <Select size="l" :show-label="false" placeholder="Новою поштою" />
                 <div style="display:flex;gap:var(--space-8);align-items:center">
                   <Select size="l" :show-label="false" placeholder="виберіть відділення" style="flex:1" />
                   <ButtonFront type="default" size="l" label="Обрати на мапі" show-left-icon><template #left><Icon name="location-24" /></template></ButtonFront>
@@ -62,7 +62,7 @@ export const Checkout: Story = {
               </div>
               <div :style="section">
                 <SectionTitle size="m" title="Оплата" :show-action="false" />
-                <Select size="l" :show-label="false" :selected="false" model-value="На карту Visa/MasterCard" />
+                <Select size="l" :show-label="false" placeholder="На карту Visa/MasterCard" />
               </div>
               <CheckoutConfirm />
             </div>

@@ -166,8 +166,10 @@ function onChange(e: Event) {
 }
 
 .ds-checkbox__label {
+  min-width: 0;
   color: var(--_text);
-  white-space: nowrap;
+  /* Длинные подписи (согласие с условиями) переносятся, а не обрезаются. */
+  overflow-wrap: anywhere;
 }
 .ds-checkbox__counter {
   flex: none;
