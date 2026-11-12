@@ -2,12 +2,11 @@
 /**
  * CartItem — строка товара в корзине (Figma набор 6303:12634).
  * Type: product / bundle (набор). Size: default (1091, адаптив — Fill) / compact (480, правая колонка оформления, попапы).
- * Собирается из Counter, Price, DiscountLabel, GiftTag, InfoTag, IconButton, Icon.
+ * Собирается из Counter, Price, DiscountLabel, GiftTag, InfoTag, ButtonFront (удаление — Flat L без подписи, как в Figma), Icon.
  *
  * Figma → props: Type → type, Size → size; Show min-order / old price / electronic / wholesale / counter / gift-tag /
  * discount / gift-on-img / set-counter / delete / delete-cost / delete-count / mods / gift → show*; слот mods → слот `mods`.
  * Фото — данные товара: `image`, `items[].image`, `gift.image` (url). Без фото — плашка surface/hover.
- * `showDeleteCount` объявлен ради соответствия набору Figma; в проверенных вариантах не используется (эффекта нет).
  */
 import { ref, watch } from 'vue';
 import Counter from '../Counter/Counter.vue';
@@ -15,7 +14,8 @@ import Price from '../Price/Price.vue';
 import DiscountLabel from '../DiscountLabel/DiscountLabel.vue';
 import GiftTag from '../GiftTag/GiftTag.vue';
 import InfoTag from '../InfoTag/InfoTag.vue';
-import IconButton from '../IconButton/IconButton.vue';
+import CartItemInfo from './CartItemInfo.vue';
+import ButtonFront from '../ButtonFront/ButtonFront.vue';
 import Icon from '../Icon/Icon.vue';
 import CartItemThumb from './CartItemThumb.vue';
 
@@ -54,10 +54,14 @@ const props = withDefaults(
     quantity?: number;
     /** Максимум для счётчика (по умолчанию — как у Counter). */
     maxQuantity?: number;
+    /** Минимум для счётчика (минимальный заказ товара; по умолчанию — как у Counter). */
+    minQuantity?: number;
     minOrderText?: string;
     wholesaleText?: string;
     discountLabel?: string;
     giftTagLabel?: string;
+    /** Подсказка (i) у метки «Подарунок»: что подарок — покупка за 1 грн. */
+    giftHint?: string;
     electronicLabel?: string;
     setCounterText?: string;
     mods?: CartItemMod[];
@@ -80,7 +84,6 @@ const props = withDefaults(
     showSetCounter?: boolean;
     showDelete?: boolean;
     showDeleteCost?: boolean;
-    showDeleteCount?: boolean;
     showMods?: boolean;
     showGift?: boolean;
   }>(),
@@ -98,6 +101,7 @@ const props = withDefaults(
     wholesaleText: 'додайте ще 5 одиниць та заощадьте 240 гривень',
     discountLabel: 'smart-10 (−649 грн)',
     giftTagLabel: 'Подарунок',
+    giftHint: 'Подарунок додається до замовлення як покупка за 1 грн',
     electronicLabel: 'Електронний товар',
     setCounterText: '+5',
     mods: () => [
@@ -119,13 +123,13 @@ const props = withDefaults(
     showSetCounter: false,
     showDelete: true,
     showDeleteCost: true,
-    showDeleteCount: false,
     showMods: false,
     showGift: true,
   },
 );
 
-const emit = defineEmits<{ 'update:quantity': [value: number]; delete: [] }>();
+/** `wholesale` — клик по подсказке опта «додайте ще N одиниць…»: экран добавляет недостающие единицы. */
+const emit = defineEmits<{ 'update:quantity': [value: number]; delete: []; wholesale: [] }>();
 
 const qty = ref(props.quantity);
 watch(() => props.quantity, (v) => (qty.value = v));
@@ -160,7 +164,7 @@ watch(qty, (v) => emit('update:quantity', v));
             <div class="ci__price">
               <GiftTag v-if="showGiftTag" :label="giftTagLabel" />
               <span v-if="showOldPrice" class="ci__old">{{ oldPrice }}</span>
-              <span v-if="showGiftTag" class="ci__info"><Icon name="info-16" /></span>
+              <CartItemInfo v-if="showGiftTag" :text="giftHint" />
               <span class="ci__now">{{ price }}</span>
             </div>
           </div>
@@ -168,14 +172,14 @@ watch(qty, (v) => emit('update:quantity', v));
         </div>
         <div class="ci__bottom">
           <div v-if="showCounter" class="ci__counter-box">
-            <Counter v-model="qty" show-units :max="maxQuantity" />
+            <Counter v-model="qty" show-units :max="maxQuantity" :min="minQuantity" />
           </div>
           <InfoTag v-if="showElectronic" :label="electronicLabel" />
           <Price class="ci__sum" :price="sum" :show-old-price="false" size="s" />
         </div>
-        <div v-if="showWholesale" class="ci__wholesale ci__wholesale--compact">
+        <button v-if="showWholesale" type="button" class="ci__wholesale ci__wholesale--compact" @click="emit('wholesale')">
           <Icon name="plus-16" /><span>{{ wholesaleText }}</span>
-        </div>
+        </button>
       </div>
     </div>
     <div v-if="showGift" class="ci__gift">
@@ -188,12 +192,12 @@ watch(qty, (v) => emit('update:quantity', v));
         <div class="ci__gift-price">
           <GiftTag :label="giftTagLabel" />
           <span v-if="gift.oldPrice" class="ci__old">{{ gift.oldPrice }}</span>
-          <span class="ci__info"><Icon name="info-16" /></span>
+          <CartItemInfo :text="giftHint" />
         </div>
       </div>
     </div>
     <div v-if="showDelete" class="ci__delete ci__delete--product">
-      <IconButton icon="delete-16" label="Видалити" @click="emit('delete')" />
+      <ButtonFront type="flat" size="l" :show-label="false" show-left-icon aria-label="Видалити" @click="emit('delete')"><template #left><Icon name="delete-16" /></template></ButtonFront>
     </div>
   </div>
 
@@ -222,7 +226,7 @@ watch(qty, (v) => emit('update:quantity', v));
       <div class="ci__spacer" />
       <div class="ci__bundle-group">
         <div v-if="showCounter" class="ci__counter-box">
-          <Counter v-model="qty" show-units :max="maxQuantity" />
+          <Counter v-model="qty" show-units :max="maxQuantity" :min="minQuantity" />
         </div>
         <div class="ci__bundle-sum">
           <span v-if="showOldPrice && oldSum" class="ci__old">{{ oldSum }}</span>
@@ -231,7 +235,7 @@ watch(qty, (v) => emit('update:quantity', v));
       </div>
     </div>
     <div v-if="showDelete" class="ci__delete ci__delete--bundle">
-      <IconButton icon="delete-16" label="Видалити" @click="emit('delete')" />
+      <ButtonFront type="flat" size="l" :show-label="false" show-left-icon aria-label="Видалити" @click="emit('delete')"><template #left><Icon name="delete-16" /></template></ButtonFront>
     </div>
   </div>
 
@@ -275,22 +279,22 @@ watch(qty, (v) => emit('update:quantity', v));
           <div class="ci__price">
             <GiftTag v-if="showGiftTag" :label="giftTagLabel" />
             <span v-if="showOldPrice" class="ci__old">{{ oldPrice }}</span>
-            <span v-if="showGiftTag" class="ci__info"><Icon name="info-16" /></span>
+            <CartItemInfo v-if="showGiftTag" :text="giftHint" />
             <span class="ci__now">{{ price }}</span>
           </div>
           <span v-if="showMinOrder" class="ci__min-order">{{ minOrderText }}</span>
         </div>
         <div v-if="showElectronic" class="ci__electronic"><InfoTag :label="electronicLabel" /></div>
-        <div v-if="showWholesale" class="ci__wholesale">
+        <button v-if="showWholesale" type="button" class="ci__wholesale" @click="emit('wholesale')">
           <Icon name="plus-16" /><span>{{ wholesaleText }}</span>
-        </div>
+        </button>
       </div>
       <div v-if="showCounter" class="ci__counter-box ci__counter-box--default">
-        <Counter v-model="qty" show-units :max="maxQuantity" />
+        <Counter v-model="qty" show-units :max="maxQuantity" :min="minQuantity" />
       </div>
       <div class="ci__cost">
         <Price :price="sum" :show-old-price="false" size="s" />
-        <IconButton v-if="showDelete && showDeleteCost" icon="delete-16" label="Видалити" @click="emit('delete')" />
+        <ButtonFront v-if="showDelete && showDeleteCost" type="flat" size="l" :show-label="false" show-left-icon aria-label="Видалити" @click="emit('delete')"><template #left><Icon name="delete-16" /></template></ButtonFront>
       </div>
     </div>
   </div>
@@ -302,7 +306,8 @@ watch(qty, (v) => emit('update:quantity', v));
   box-sizing: border-box;
   width: 100%;
   background: var(--surface-default);
-  border-bottom: var(--stroke-thin) solid var(--border-card);
+  /* Нижняя линия внутри (Figma stroke inside) — не добавляет высоту. */
+  box-shadow: inset 0 calc(-1 * var(--stroke-thin)) 0 var(--border-card);
   color: var(--text-primary);
   font: var(--typo-paragraph-p1);
 }
@@ -363,12 +368,26 @@ watch(qty, (v) => emit('update:quantity', v));
 .ci__mod-label {
   color: var(--text-secondary);
 }
+/* Подсказка опта — кнопка: клик добавляет недостающие единицы (событие wholesale). */
 .ci__wholesale {
   display: flex;
   align-items: flex-start;
   gap: var(--space-4);
-  padding-top: var(--space-12);
+  margin: 0;
+  padding: var(--space-12) 0 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
   color: var(--text-primary);
+  cursor: pointer;
+}
+.ci__wholesale:hover > span {
+  text-decoration: underline;
+}
+.ci__wholesale:focus-visible {
+  outline: var(--stroke-thin) solid var(--border-input-active);
+  outline-offset: var(--space-2);
 }
 .ci__wholesale > span:first-child,
 .ci__wholesale > :deep(.ds-icon) {
@@ -531,7 +550,8 @@ watch(qty, (v) => emit('update:quantity', v));
   display: flex;
   align-items: flex-start;
   gap: var(--space-16);
-  padding: var(--space-8);
+  /* Рамка внутри (Figma stroke inside): отступ 8 включает 1 px обводки. */
+  padding: calc(var(--space-8) - var(--stroke-thin));
   border: var(--stroke-thin) solid var(--border-gift);
   border-radius: var(--radius-8);
   background: var(--surface-default);
@@ -547,6 +567,17 @@ watch(qty, (v) => emit('update:quantity', v));
   border-radius: var(--radius-8);
   background: var(--surface-hover);
   color: var(--icon-primary);
+}
+/* Photos in the gift block and the bundle stack: fit whole, centred, white under the photo (as CartItemThumb). */
+.ci__gift-img:has(img),
+.ci__stack-cell:has(img) {
+  background: var(--surface-default);
+}
+.ci__gift-img > img,
+.ci__stack-cell > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .ci__gift-content {
   display: flex;

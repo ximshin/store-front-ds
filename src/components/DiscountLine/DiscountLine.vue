@@ -1,17 +1,17 @@
 <script setup lang="ts">
 /**
  * DiscountLine — строка скидки в итогах корзины/заказа (Figma 6215:69): иконка 16 (icon/primary) + название
- * (DS/Paragraph/P1) слева, сумма (DS/Price/S, text/price) справа. Ширина — Fill, высота 20.
+ * (DS/Paragraph/P1) слева, сумма (DS/Paragraph/P1, text/price) справа. Ширина — Fill, высота 20.
  * Не путать с DiscountLabel (метка у товара).
  *
- * Figma → props: Label → label, Amount → amount; иконка — prop `icon` (по умолчанию tag-16).
+ * Figma → props: Label → label, Amount → amount; иконка — prop `icon` (по умолчанию coupon-16, icon/primary).
  */
 import Icon from '../Icon/Icon.vue';
 
 withDefaults(defineProps<{ label?: string; amount?: string; icon?: string }>(), {
   label: 'Накопичувальна знижка',
   amount: '−20 грн',
-  icon: 'tag-16',
+  icon: 'coupon-16',
 });
 </script>
 
@@ -48,7 +48,7 @@ withDefaults(defineProps<{ label?: string; amount?: string; icon?: string }>(), 
   color: var(--text-primary);
 }
 .ds-discount-line__amount {
-  font: var(--typo-price-s);
+  font: var(--typo-paragraph-p1);
   color: var(--text-price);
   white-space: nowrap;
 }

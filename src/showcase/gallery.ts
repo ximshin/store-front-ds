@@ -114,7 +114,7 @@ export const gallery: { page: string; items: GalleryItem[] }[] = [
     items: [
       { name: 'Price', component: Price, variants: [{ size: 's' }, { size: 'm', state: 'sale' }, { size: 'l' }] },
       { name: 'TabItem', component: TabItem, variants: [{ label: 'Опис' }, { label: 'Характеристики', active: true }] },
-      { name: 'Tabs', component: Tabs, variants: [{ items: [{ label: 'Звичайне', value: 'full' }, { label: 'Швидке', value: 'quick' }], modelValue: 'full', divider: false, gap: 'var(--space-24)', paddingX: 'var(--space-16)' }] },
+      { name: 'Tabs', component: Tabs, variants: [{ items: [{ label: 'Звичайне', value: 'full' }, { label: 'Швидке', value: 'quick' }], modelValue: 'full', divider: false, gap: 'var(--space-24)' }] },
     ],
   },
   {

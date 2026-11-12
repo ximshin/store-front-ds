@@ -52,7 +52,7 @@ const open = ref(false);
     >
       <Icon name="info-16" />
       <span v-if="open" class="ds-warning__tooltip">
-        <Tooltip arrow-position="bottom" :text="tooltip">
+        <Tooltip arrow-position="bottom" arrow-align="end" :text="tooltip">
           <slot name="tooltip" />
         </Tooltip>
       </span>
@@ -65,6 +65,7 @@ const open = ref(false);
   --_bg: var(--bg-warning-light);
   --_icon: var(--icon-warning);
 
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -89,8 +90,8 @@ const open = ref(false);
   font: var(--typo-paragraph-p1);
   color: var(--text-primary);
 }
+/* Figma: Show tooltip — tooltip (Bottom, End) above the plate, right edge = plate edge, arrow on (i), width 340. */
 .ds-warning__info {
-  position: relative;
   display: inline-flex;
   color: var(--icon-secondary);
   cursor: help;
@@ -100,9 +101,12 @@ const open = ref(false);
 }
 .ds-warning__tooltip {
   position: absolute;
+  right: 0;
   bottom: calc(100% + var(--space-8));
-  left: 50%;
   z-index: 10;
-  transform: translateX(-50%);
+  width: min(340px, 100%);
+}
+.ds-warning__tooltip :deep(.ds-tooltip) {
+  width: 100%;
 }
 </style>

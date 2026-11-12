@@ -40,6 +40,10 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const BothChecked: Story = { args: { newsletter: true, terms: true } };
 export const Unchecked: Story = { args: { terms: false } };
+/** Кнопка недоступна (экран отключает её, пока не приняты условия или корзина пуста). */
+export const Disabled: Story = { args: { terms: false, disabled: true } };
+/** Отправка: кнопка недоступна, текст — `loadingLabel`. */
+export const Loading: Story = { args: { terms: true, loading: true } };
 export const English: Story = {
   args: {
     newsletterLabel: 'I want to receive news and special offers from the store',

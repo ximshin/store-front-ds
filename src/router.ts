@@ -5,7 +5,7 @@ import { screens } from './screens/registry';
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'index', component: () => import('./screens/ScreensIndex.vue') },
   { path: '/showcase', name: 'showcase', component: () => import('./showcase/Showcase.vue') },
-  ...screens.map((s) => ({ path: s.route, name: s.id, component: s.component })),
+  ...screens.map((s) => ({ path: s.route, name: s.id, component: s.component, props: s.props ?? false })),
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 

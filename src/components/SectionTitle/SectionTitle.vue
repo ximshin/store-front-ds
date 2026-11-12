@@ -27,7 +27,7 @@ withDefaults(
 </script>
 
 <template>
-  <div class="ds-section-title" :class="`ds-section-title--${size}`">
+  <div class="ds-section-title" :class="[`ds-section-title--${size}`, { 'has-action': showAction }]">
     <h3 class="ds-section-title__text">{{ title }}</h3>
     <div v-if="showAction" class="ds-section-title__action">
       <slot name="action">
@@ -47,8 +47,11 @@ withDefaults(
   gap: var(--space-8);
   box-sizing: border-box;
   width: 100%;
-  min-height: var(--space-40);
   padding-bottom: var(--space-8);
+}
+/* Высота 40 — под кнопку действия; без неё заголовок по высоте строки (как в Figma). */
+.ds-section-title.has-action {
+  min-height: var(--space-40);
 }
 .ds-section-title__text {
   min-width: 0;

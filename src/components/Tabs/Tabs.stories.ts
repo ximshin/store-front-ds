@@ -50,7 +50,7 @@ export const Checkout: Story = {
     modelValue: 'delivery',
     divider: false,
     gap: 'var(--space-24)',
-    paddingX: 'var(--space-16)',
+    paddingX: 'var(--space-0)',
   },
 };
 /** Вкладки слотом. */
@@ -75,7 +75,7 @@ export const AllVariants: Story = {
     template: `
       <div style="display:flex;flex-direction:column;gap:var(--space-24);padding:var(--space-24)">
         <Tabs :items="ITEMS" v-model="a" />
-        <Tabs :items="ITEMS.slice(0, 2)" v-model="b" :divider="false" gap="var(--space-24)" padding-x="var(--space-16)" />
+        <Tabs :items="ITEMS.slice(0, 2)" v-model="b" :divider="false" gap="var(--space-24)" />
       </div>`,
   }),
 };

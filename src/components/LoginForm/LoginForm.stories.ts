@@ -49,6 +49,12 @@ export const Filled: Story = {};
 /** Пустые поля с подсказками. */
 export const Empty: Story = { args: { email: '', password: '' } };
 
+/** Ошибка входа: поля в error, текст под паролем. */
+export const LoginError: Story = { args: { password: 'wrong', error: 'Невірна пошта або пароль' } };
+
+/** Вход в процессе: кнопка недоступна. */
+export const Loading: Story = { args: { loading: true, submitLabel: 'Входимо…' } };
+
 export const English: Story = {
   args: {
     dividerLabel: 'or',

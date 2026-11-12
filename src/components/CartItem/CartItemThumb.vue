@@ -53,10 +53,15 @@ withDefaults(
   background: var(--surface-hover);
   color: var(--icon-primary);
 }
+/* Figma (checkout-order-item): the photo fits whole, centred, aspect kept (no crop), white under it.
+   The grey surface/hover plate stays only without a photo. */
+.ci-thumb__img:has(.ci-thumb__photo) {
+  background: var(--surface-default);
+}
 .ci-thumb__photo {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 .ci-thumb__set {
   position: absolute;

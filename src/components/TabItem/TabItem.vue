@@ -2,7 +2,7 @@
 /**
  * TabItem — вкладка (Figma 6245:12657). DS/Special/Special 16 Medium.
  * Default — text/secondary, Active — text/primary + нижняя линия 2 px border/input-active.
- * Горизонтальный отступ задаётся CSS-переменной `--ds-tab-padding-x` (по умолчанию 0; в чекауте — 16 px).
+ * Отступы: сверху 0, снизу space/12 (высота 36). Горизонтальный — CSS-переменная `--ds-tab-padding-x` (по умолчанию 0, как в Figma).
  *
  * Figma → props: Label → label (или слот), State=Active → active. Default → :hover.
  */
@@ -29,7 +29,8 @@ defineEmits<{ click: [event: MouseEvent] }>();
   align-items: flex-start;
   flex: none;
   margin: 0;
-  padding: var(--space-12) var(--ds-tab-padding-x, var(--space-0));
+  /* Figma: top 0, bottom space/12 (height 36). */
+  padding: var(--space-0) var(--ds-tab-padding-x, var(--space-0)) var(--space-12);
   border: 0;
   background: none;
   font: var(--typo-special-special-16-medium);
@@ -43,7 +44,8 @@ defineEmits<{ click: [event: MouseEvent] }>();
 }
 .ds-tab-item.is-active {
   color: var(--text-primary);
-  border-bottom: var(--stroke-bold) solid var(--border-input-active);
+  /* Figma: bottom stroke inside — does not add height (border would make it 38 instead of 36). */
+  box-shadow: inset 0 calc(-1 * var(--stroke-bold)) 0 var(--border-input-active);
 }
 .ds-tab-item:focus-visible {
   outline: none;

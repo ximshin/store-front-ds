@@ -27,6 +27,8 @@ const props = withDefaults(
     nativeType?: 'button' | 'submit' | 'reset';
     /** Кнопка на всю ширину контейнера (итоги заказа, карточка пункта выдачи). */
     block?: boolean;
+    /** Доступное имя — обязательно для кнопки без подписи (showLabel=false). */
+    ariaLabel?: string;
   }>(),
   {
     // Значения по умолчанию — как у компонента в Figma.
@@ -40,6 +42,7 @@ const props = withDefaults(
     showList: false,
     nativeType: 'button',
     block: false,
+    ariaLabel: undefined,
   },
 );
 
@@ -52,7 +55,8 @@ const isDropdown = computed(() => props.type === 'dropdown');
   <div class="ds-button-wrap" :class="{ 'is-dropdown': isDropdown, 'is-block': block }">
     <button
       class="ds-button"
-      :class="[`ds-button--${type}`, `ds-button--${size}`]"
+      :class="[`ds-button--${type}`, `ds-button--${size}`, { 'is-icon-only': !showLabel }]"
+      :aria-label="ariaLabel"
       :type="nativeType"
       :disabled="disabled"
       :aria-haspopup="isDropdown ? 'menu' : undefined"
@@ -135,6 +139,12 @@ const isDropdown = computed(() => props.type === 'dropdown');
   padding: 0 calc(var(--space-16) - var(--stroke-thin));
   border-radius: var(--radius-4);
   font: var(--typo-form-button-l-label);
+}
+/* Без подписи — квадрат (Figma: отступы space/12 у экземпляра L 40, напр. удаление в CartItem). */
+.ds-button.is-icon-only {
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0;
 }
 .ds-button--m {
   height: var(--space-32);

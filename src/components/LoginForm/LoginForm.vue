@@ -21,6 +21,9 @@ withDefaults(
     password?: string;
     emailPlaceholder?: string;
     passwordPlaceholder?: string;
+    /** Ошибка входа: подсвечивает поля и показывает текст под паролем. */
+    error?: string;
+    loading?: boolean;
   }>(),
   {
     // Значения по умолчанию — как у компонента в Figma.
@@ -64,6 +67,8 @@ const emit = defineEmits<{
       :label="emailLabel"
       :placeholder="emailPlaceholder"
       :model-value="email"
+      :error="!!error"
+      hint=""
       @update:model-value="emit('update:email', $event)"
     />
     <div class="ds-login-form__password">
@@ -74,10 +79,12 @@ const emit = defineEmits<{
         :label="passwordLabel"
         :placeholder="passwordPlaceholder"
         :model-value="password"
+        :error="!!error"
+        :hint="error || ''"
         @update:model-value="emit('update:password', $event)"
       />
     </div>
-    <ButtonFront class="ds-login-form__submit" type="primary" size="l" native-type="submit" :label="submitLabel" />
+    <ButtonFront class="ds-login-form__submit" type="primary" size="l" native-type="submit" :label="submitLabel" :disabled="loading" />
     <div class="ds-login-form__forgot">
       <button type="button" class="ds-login-form__forgot-link" @click="emit('forgot')">{{ forgotLabel }}</button>
     </div>

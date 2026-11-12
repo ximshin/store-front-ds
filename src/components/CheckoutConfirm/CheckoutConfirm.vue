@@ -16,6 +16,11 @@ withDefaults(
     newsletterLabel?: string;
     termsLabel?: string;
     buttonLabel?: string;
+    /** Кнопка неактивна (например, без согласия с условиями или с пустой корзиной). */
+    disabled?: boolean;
+    /** Идёт отправка: кнопка неактивна, подпись — loadingLabel. */
+    loading?: boolean;
+    loadingLabel?: string;
   }>(),
   {
     // Значения по умолчанию — как у компонента в Figma.
@@ -24,6 +29,9 @@ withDefaults(
     newsletterLabel: 'Хочу отримувати новини та спеціальні пропозиції від магазину',
     termsLabel: 'Підтверджуючи замовлення, я приймаю умови угоди користувача',
     buttonLabel: 'Оформити замовлення',
+    disabled: false,
+    loading: false,
+    loadingLabel: 'Оформлюємо…',
   },
 );
 
@@ -54,7 +62,14 @@ defineEmits<{
         @update:checked="$emit('update:terms', $event)"
       />
     </div>
-    <ButtonFront type="primary" size="l" :label="buttonLabel" @click="$emit('submit', $event)" />
+    <ButtonFront
+      type="primary"
+      size="l"
+      :label="loading ? loadingLabel : buttonLabel"
+      :disabled="disabled || loading"
+      :aria-busy="loading || undefined"
+      @click="$emit('submit', $event)"
+    />
   </div>
 </template>
 

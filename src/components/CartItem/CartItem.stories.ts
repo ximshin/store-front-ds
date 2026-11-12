@@ -60,7 +60,6 @@ const meta = {
     showSetCounter: { control: 'boolean', description: 'Figma: Show set-counter' },
     showDelete: { control: 'boolean', description: 'Figma: Show delete' },
     showDeleteCost: { control: 'boolean', description: 'Figma: Show delete-cost (Default)' },
-    showDeleteCount: { control: 'boolean', description: 'Figma: Show delete-count (в проверенных вариантах не используется)' },
     showMods: { control: 'boolean', description: 'Figma: Show mods' },
     showGift: { control: 'boolean', description: 'Figma: Show gift (Compact Product)' },
   },
@@ -125,6 +124,12 @@ export const ProductCompactFull: Story = {
 export const ProductCompactGift: Story = {
   parameters: { maxWidth: 480 },
   args: { size: 'compact', showGift: true },
+};
+
+/** Минимальный заказ: `minQuantity: 2` — счётчик не опускается ниже 2. */
+export const ProductCompactMinOrder: Story = {
+  parameters: { maxWidth: 480 },
+  args: { size: 'compact', quantity: 2, minQuantity: 2, title: 'Apple iPhone 15 Pro 128GB Natural Titanium' },
 };
 
 /** Bundle Compact — «Разом дешевше». */

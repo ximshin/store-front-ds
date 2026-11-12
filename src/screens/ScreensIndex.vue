@@ -12,7 +12,7 @@ const storybookUrl = import.meta.env.BASE_URL + 'storybook/';
     <header class="index__head">
       <h1 class="ds-text-display-m index__title">Store Front — екрани</h1>
       <p class="ds-text-paragraph-lead index__lead">
-        Статичні екрани, зібрані з дизайн-системи. Логіка й дані — окремий крок.
+        Екрани, зібрані з дизайн-системи й оживлені на мок-даних: кліки, форми, промокоди, стани.
       </p>
     </header>
 

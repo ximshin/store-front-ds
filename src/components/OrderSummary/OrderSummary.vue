@@ -59,7 +59,11 @@ defineEmits<{ submit: [event: MouseEvent] }>();
       <span class="ds-order-summary__key">{{ itemsLabel }}</span>
       <span class="ds-order-summary__value">{{ itemsTotal }}</span>
     </div>
-    <DiscountLine v-if="showDiscount" :label="discountLabel" :amount="discountAmount" />
+    <!-- Слот `discounts` — несколько строк скидок (по одной на код); без слота — одна DiscountLine из props.
+         Пустой слот Vue считает отсутствующим и рисует запасную строку — со слотом передавайте :show-discount="false". -->
+    <slot name="discounts">
+      <DiscountLine v-if="showDiscount" :label="discountLabel" :amount="discountAmount" />
+    </slot>
     <div class="ds-order-summary__row">
       <span class="ds-order-summary__key">{{ deliveryLabel }}</span>
       <span class="ds-order-summary__value">{{ deliveryValue }}</span>

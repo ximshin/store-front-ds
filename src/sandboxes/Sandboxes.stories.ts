@@ -41,7 +41,7 @@ export const Checkout: Story = {
           <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:var(--space-16) var(--space-16) 0">
             <div style="width:600px;padding-top:var(--space-8)">
               <h1 class="ds-text-display-m" style="margin:0 0 var(--space-16)">Оформлення замовлення</h1>
-              <Tabs :items="tabs" model-value="full" :divider="false" gap="var(--space-24)" padding-x="var(--space-16)" />
+              <Tabs :items="tabs" model-value="full" :divider="false" gap="var(--space-24)" />
             </div>
             <div :style="card + 'width:600px'">
               <div :style="section">

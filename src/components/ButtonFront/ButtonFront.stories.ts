@@ -123,3 +123,13 @@ export const Block: Story = {
   args: { block: true, label: 'Оформити замовлення' },
   parameters: { maxWidth: 400 },
 };
+
+/** Без подписи — квадрат (L 40 × 40). Так сделано удаление в CartItem: Flat + иконка delete-16, обязательно ariaLabel. */
+export const IconOnly: Story = {
+  args: { type: 'flat', size: 'l', showLabel: false, showLeftIcon: true, ariaLabel: 'Видалити' },
+  render: (args) => ({
+    components: { ButtonFront, Icon },
+    setup: () => ({ args }),
+    template: '<ButtonFront v-bind="args"><template #left><Icon name="delete-16" /></template></ButtonFront>',
+  }),
+};

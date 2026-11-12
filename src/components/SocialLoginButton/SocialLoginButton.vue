@@ -55,9 +55,9 @@ const logo = computed(() => (props.network === 'google' ? googleLogo : props.net
   height: var(--space-40);
   margin: 0;
   padding: var(--space-8) var(--space-12);
-  /* Обводка снаружи layout: рисуется тенью, размеры не меняет. */
+  /* Обводка тенью внутри кнопки: размеры не меняет и не обрезается контейнером с прокруткой. */
   border: 0;
-  box-shadow: 0 0 0 var(--stroke-thin) var(--border-input);
+  box-shadow: inset 0 0 0 var(--stroke-thin) var(--border-input);
   border-radius: var(--radius-8);
   background: var(--surface-default);
   color: var(--text-primary);
@@ -67,7 +67,7 @@ const logo = computed(() => (props.network === 'google' ? googleLogo : props.net
   transition: box-shadow 0.15s ease;
 }
 .ds-social-login:hover:not(:disabled) {
-  box-shadow: 0 0 0 var(--stroke-thin) var(--border-hover-card);
+  box-shadow: inset 0 0 0 var(--stroke-thin) var(--border-hover-card);
 }
 .ds-social-login:disabled {
   cursor: default;

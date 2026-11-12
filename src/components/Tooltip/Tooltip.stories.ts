@@ -25,6 +25,8 @@ type Story = StoryObj<typeof meta>;
 
 export const ArrowBottom: Story = {};
 export const ArrowTop: Story = { args: { arrowPosition: 'top' } };
+/** Arrow align=End — стрелка у правого края (центр в 24 px): для иконки (i) у края, как в warning. */
+export const ArrowAlignEnd: Story = { args: { arrowAlign: 'end', text: '«Покупка частинами» має власні умови банку, тому промокоди й знижки до неї не застосовуються.' } };
 export const ShortText: Story = { args: { text: 'Доставка Новою поштою за 1–2 дні' } };
 export const English: Story = { args: { text: 'Discounts do not apply when paying this way' } };
 

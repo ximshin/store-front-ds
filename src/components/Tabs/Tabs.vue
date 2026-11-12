@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Tabs — вкладки страницы товара (Figma 6245:12658): TabItem в ряд, шаг space/32, нижняя линия 1 px border/divider.
- * Чекаут-вариант (без линии, шаг space/24, отступ вкладок 16): `:divider="false" gap="var(--space-24)" padding-x="var(--space-16)"`.
+ * Чекаут-вариант (без линии, шаг space/24, вкладки без боковых отступов): `:divider="false" gap="var(--space-24)"`.
  * Вкладки — prop `items` (+ v-model) или слот с `TabItem`. Ширина — Fill; на мобайле — горизонтальный скролл.
  */
 import TabItem from '../TabItem/TabItem.vue';
