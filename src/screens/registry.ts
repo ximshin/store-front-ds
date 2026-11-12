@@ -29,11 +29,20 @@ export const screens: ScreenEntry[] = [
   {
     id: 'checkout-accordion',
     name: 'Оформлення · швидке замовлення карткою',
-    description: 'Варіант без вкладок: над повною формою — згортувана картка «Швидке замовлення» (телефон, ім’я, «Надіслати заявку»); «Передзвонити вам?» у шапці розгортає її.',
+    description: 'Варіант без вкладок: над повною формою — згортувана картка «Швидке замовлення» (ім’я та прізвище, телефон, е-пошта, згоди, «Оформити замовлення»); «Передзвонити вам?» у шапці розгортає її.',
     route: '/checkout-accordion',
     figma: 'Checkout — варіант без вкладок · 1991:61158',
     component: () => import('./checkout/CheckoutScreen.vue'),
     props: { quickLayout: 'accordion' },
+  },
+  {
+    id: 'checkout-folder',
+    name: 'Оформлення · вкладки-папки',
+    description: 'Вкладки «Новий покупець | Увійти | Швидке замовлення» над однією карткою: повна форма, форма входу (як у попапі) або швидке замовлення; праворуч — замовлення до 600.',
+    route: '/checkout-folder',
+    figma: 'Checkout — вкладки-папки · 1986:29745',
+    component: () => import('./checkout/CheckoutScreen.vue'),
+    props: { quickLayout: 'folder' },
   },
   {
     id: 'checkout-no-quick',

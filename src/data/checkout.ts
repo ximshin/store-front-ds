@@ -452,10 +452,10 @@ export async function submitOrder(): Promise<boolean> {
   return true;
 }
 
-/** Quick order: phone (+ optional name). */
-export async function submitQuick(): Promise<boolean> {
+/** Quick order: phone (+ optional name). The accordion card also checks the name and e-mail (`fields`). */
+export async function submitQuick(fields: FormField[] = ['phone']): Promise<boolean> {
   if (checkout.submitting || isEmpty.value) return false;
-  if (!validateAll(['phone'])) return false;
+  if (!validateAll(fields)) return false;
   checkout.submitting = true;
   await delay(1000);
   checkout.submitting = false;

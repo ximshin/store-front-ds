@@ -224,7 +224,8 @@ function onFormFocusOut(e: FocusEvent) {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  /* auto (not contain): at the end of the list the wheel goes on to scroll the page. */
+  overscroll-behavior: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--icon-secondary) var(--surface-hover);
 }

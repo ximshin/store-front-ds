@@ -2,7 +2,7 @@
 
 - Репозиторий: https://github.com/ximshin/store-front-ds (публичный) · ветка `main`
 - Живая версия (GitHub Pages, автосборка на каждый push в `main` — `.github/workflows/pages.yml`):
-  - экраны: https://ximshin.github.io/store-front-ds/ (индекс), `#/checkout`, `#/checkout-login`
+  - экраны: https://ximshin.github.io/store-front-ds/ (индекс), `#/checkout`, `#/checkout-accordion`, `#/checkout-no-quick`, `#/checkout-login`, `#/checkout-success`
   - дизайн-система (тестовая страница): https://ximshin.github.io/store-front-ds/#/showcase
   - каталог Storybook: https://ximshin.github.io/store-front-ds/storybook/
 - Содержимое: Vue-база дизайн-системы Store Front (Vue 3 + TypeScript + CSS-переменные), каталог Storybook 10, статичные экраны (vue-router, hash-история, реестр `src/screens/registry.ts`).

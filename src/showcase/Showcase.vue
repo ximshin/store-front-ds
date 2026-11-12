@@ -4,7 +4,8 @@
 import meta from '../tokens/meta.json';
 import { gallery } from './gallery';
 
-const storybookUrl = import.meta.env.BASE_URL + 'storybook/';
+// Pages: Storybook is built into /storybook/ next to the app. Dev: it runs as its own server (npm run storybook, 6006).
+const storybookUrl = import.meta.env.DEV ? 'http://localhost:6006/' : import.meta.env.BASE_URL + 'storybook/';
 const semanticColors = meta.variables.filter((v) => v.type === 'COLOR' && v.collection === 'Semantic');
 </script>
 

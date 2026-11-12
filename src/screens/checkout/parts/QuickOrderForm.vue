@@ -16,7 +16,7 @@ async function onSubmit() {
 
 <template>
   <form class="quick" @submit.prevent="onSubmit">
-    <SectionTitle size="m" title="Швидке замовлення" :show-action="false" />
+    <SectionTitle size="m" title="Одержувач замовлення" :show-action="false" />
     <p class="quick__lead ds-text-paragraph-p1">
       Залиште телефон — менеджер зателефонує, уточнить доставку й оплату та оформить замовлення за вас.
     </p>
@@ -45,6 +45,11 @@ async function onSubmit() {
   border: var(--stroke-thin) solid var(--border-card);
   border-radius: var(--radius-8);
   background: var(--surface-default);
+}
+/* Title row 40 high, as on the full form (its «Увійти» action is 40) — the title does not jump when switching tabs. */
+.quick :deep(.ds-section-title) {
+  box-sizing: border-box;
+  min-height: var(--space-40);
 }
 .quick__lead {
   margin: 0;

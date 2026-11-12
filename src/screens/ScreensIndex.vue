@@ -4,7 +4,8 @@ import { RouterLink } from 'vue-router';
 import { screens } from './registry';
 import Icon from '../components/Icon/Icon.vue';
 
-const storybookUrl = import.meta.env.BASE_URL + 'storybook/';
+// Pages: Storybook is built into /storybook/ next to the app. Dev: it runs as its own server (npm run storybook, 6006).
+const storybookUrl = import.meta.env.DEV ? 'http://localhost:6006/' : import.meta.env.BASE_URL + 'storybook/';
 </script>
 
 <template>

@@ -12,6 +12,8 @@ import {
 } from '../../../data/checkout';
 import { showToast } from '../../../data/toast';
 
+// showLogin=false: «Увійти» lives elsewhere (the folder-tabs variant has its own «Увійти» tab).
+const props = withDefaults(defineProps<{ showLogin?: boolean }>(), { showLogin: true });
 const router = useRouter();
 const f = checkout.form;
 const e = checkout.errors;
@@ -41,12 +43,12 @@ function showMap() {
 <template>
   <div class="form">
     <section class="form__section form__section--padded">
-      <SectionTitle size="m" title="Одержувач замовлення">
+      <SectionTitle size="m" title="Одержувач замовлення" :show-action="checkout.loggedIn || props.showLogin">
         <template #action>
-          <ButtonFront v-if="!checkout.loggedIn" type="flat" size="m" label="Увійти" show-left-icon @click="router.push('/checkout-login')">
+          <ButtonFront v-if="!checkout.loggedIn && props.showLogin" type="flat" size="m" label="Увійти" show-left-icon @click="router.push('/checkout-login')">
             <template #left><Icon name="user-24" /></template>
           </ButtonFront>
-          <ButtonFront v-else type="flat" size="m" label="Вийти" show-left-icon @click="logout">
+          <ButtonFront v-else-if="checkout.loggedIn" type="flat" size="m" label="Вийти" show-left-icon @click="logout">
             <template #left><Icon name="logout-24" /></template>
           </ButtonFront>
         </template>
