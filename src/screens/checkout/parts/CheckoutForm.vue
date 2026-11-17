@@ -43,7 +43,7 @@ function showMap() {
 <template>
   <div class="form">
     <section class="form__section form__section--padded">
-      <SectionTitle size="m" title="Одержувач замовлення" :show-action="checkout.loggedIn || props.showLogin">
+      <SectionTitle class="form__head" size="m" title="Одержувач замовлення" :show-action="checkout.loggedIn || props.showLogin">
         <template #action>
           <ButtonFront v-if="!checkout.loggedIn && props.showLogin" type="flat" size="m" label="Увійти" show-left-icon @click="router.push('/checkout-login')">
             <template #left><Icon name="user-24" /></template>
@@ -167,6 +167,8 @@ function showMap() {
   padding: 0 var(--space-16);
 }
 /* Figma: «Доставка» / «Оплата» — instance height 40 (as with the action button) though the action is hidden. */
+/* «Одержувач» тоже 40: в SectionTitle M кнопка больше не задаёт высоту (Figma 6346:502), а инстанс на экране — FIXED 40. */
+.form__head.ds-section-title,
 .form__title:deep(.ds-section-title),
 .form__title.ds-section-title {
   min-height: var(--space-40);

@@ -205,6 +205,7 @@ T	DS/Heading/Popup Title	font/sans	font/weight/bold	font/size/18	font/line-heigh
 T	DS/Heading/Small Card Title	font/sans	font/weight/medium	font/size/16	font/line-height/24	0%
 T	DS/Heading/Group Title	font/sans	font/weight/bold	font/size/14	font/line-height/20	0%
 T	DS/Heading/H4	font/sans	font/weight/bold	font/size/16	font/line-height/24	0%
+T	DS/Heading/Section Title	font/sans	font/weight/bold	font/size/16	font/line-height/20	0%
 T	DS/Paragraph/P1	font/sans	font/weight/regular	font/size/14	font/line-height/20	0%
 T	DS/Paragraph/P1-Bold	font/sans	font/weight/bold	font/size/14	font/line-height/20	0%
 T	DS/Paragraph/Tooltip	font/sans	font/weight/regular	font/size/12	font/line-height/20	0%

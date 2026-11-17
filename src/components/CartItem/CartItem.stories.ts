@@ -39,7 +39,8 @@ const meta = {
     oldSum: { control: 'text', description: 'Старая сумма (набор Compact)' },
     quantity: { control: 'number' },
     minOrderText: { control: 'text', description: 'Figma: Min-order text' },
-    wholesaleText: { control: 'text', description: 'Figma: Wholesale text' },
+    wholesaleText: { control: 'text', description: 'Figma: Wholesale text (Size=Default)' },
+    wholesaleTiers: { control: 'object', description: 'Figma: слот wholesale (Size=Compact) — пороги кнопками { label, quantity, active? }' },
     discountLabel: { control: 'text' },
     giftTagLabel: { control: 'text' },
     electronicLabel: { control: 'text' },
@@ -116,6 +117,27 @@ export const ProductCompactFull: Story = {
     showDiscount: true,
     showElectronic: true,
     showWholesale: true,
+    showGift: false,
+  },
+};
+
+/** Опт кнопками (Compact, слот wholesale): 5 шт., порог «від 5» достигнут — кнопка Primary; клик ставит количество = порогу. */
+export const ProductCompactWholesale: Story = {
+  parameters: { maxWidth: 480 },
+  args: {
+    size: 'compact',
+    title: 'Навушники Apple AirPods Max, Space Gray',
+    oldPrice: '21 999 грн',
+    showOldPrice: true,
+    price: '21 759 грн',
+    sum: '108 795 грн',
+    quantity: 5,
+    showWholesale: true,
+    wholesaleTiers: [
+      { label: '21 759 грн від 5 шт.', quantity: 5, active: true },
+      { label: '21 499 грн від 10 шт.', quantity: 10 },
+      { label: '20 999 грн від 50 шт.', quantity: 50 },
+    ],
     showGift: false,
   },
 };

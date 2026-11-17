@@ -78,7 +78,7 @@ export const Checkout: Story = {
                 <OrderSummary :show-title="false" :show-discount="false" :show-divider="false" :show-button="false"
                   items-label="Проміжна сума" items-total="215 280 грн" delivery-value="за тарифами перевізника" total-label="Загальна сума" total="215 280 грн" />
               </div>
-              <CartItem size="compact" title="Навушники Apple AirPods Max, Space Gray" old-price="25 999 грн" price="21 999 грн" sum="43 998 грн" :quantity="2" :show-min-order="false" show-wholesale wholesale-text="додайте ще 3 одиниці та заощадьте 1 200 грн" :show-gift="false" />
+              <CartItem size="compact" title="Навушники Apple AirPods Max, Space Gray" old-price="25 999 грн" price="21 999 грн" sum="43 998 грн" :quantity="2" :show-min-order="false" show-wholesale :wholesale-tiers="[{ label: '21 759 грн від 5 шт.', quantity: 5 }, { label: '21 499 грн від 10 шт.', quantity: 10 }]" :show-gift="false" />
               <CartItem type="bundle" size="compact" :items="bundle" old-sum="3 398 грн" sum="2 948 грн" />
               <CartItem size="compact" title="Apple iPhone 15 Pro 128GB Natural Titanium" old-price="49 999 грн" price="47 499 грн" sum="94 998 грн" :quantity="2" show-discount discount-label="smart-5 (−2 500 грн)" min-order-text="Замовлення від 2 шт." :show-gift="false" />
               <CartItem size="compact" title="Сукня-футболка оверсайз, сіра" old-price="1 290 грн" price="990 грн" sum="990 грн" :quantity="1" :show-min-order="false" show-gift :gift="{ title: 'Свічка ароматична «№7» — подарунок', oldPrice: '450 грн' }" />

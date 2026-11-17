@@ -5,12 +5,12 @@
  *
  * Figma → props: Show left-items → showLeftItems, Show right-items → showRightItems, Show hint → showHint,
  * Show list → showList; слоты left-items / main-items / right-items / list → slots одноимённые, hint → prop `hint` + слот.
- * Дополнительно (для сборки Input/Select): size (m = поле 32, l = поле 40), disabled, error.
+ * Дополнительно (для сборки Input/Select): size (m = поле 32, l = поле 40, rich = поле 64 в две строки — Property 1=Rich), disabled, error.
  * Родитель может переопределить `--input-main-bg`, `--input-main-border`, `--input-main-min-height`, `--input-main-padding`.
  */
 import Icon from '../Icon/Icon.vue';
 
-export type InputMainSize = 'm' | 'l';
+export type InputMainSize = 'm' | 'l' | 'rich';
 
 withDefaults(
   defineProps<{
@@ -88,6 +88,14 @@ withDefaults(
 .ds-input-main--l {
   --_padding: calc(var(--space-12) - var(--stroke-thin));
   --_min-height: var(--space-40);
+}
+/* Property 1=Rich (Figma 6471:4951): поле 64, отступы 14 / 12 (минус рамка), две строки по 16 через space/4. */
+.ds-input-main--rich {
+  --_padding: calc(var(--space-12) + var(--space-2) - var(--stroke-thin)) calc(var(--space-12) - var(--stroke-thin));
+  --_min-height: calc(2 * var(--space-32));
+}
+.ds-input-main--rich .ds-input-main__items {
+  gap: var(--space-4);
 }
 .ds-input-main.is-disabled {
   --_bg: var(--surface-subtle);

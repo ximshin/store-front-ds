@@ -29,6 +29,8 @@ const props = withDefaults(
     block?: boolean;
     /** Доступное имя — обязательно для кнопки без подписи (showLabel=false). */
     ariaLabel?: string;
+    /** Кнопка-переключатель (пороги опта в CartItem): aria-pressed. Не задан — атрибута нет. */
+    pressed?: boolean;
   }>(),
   {
     // Значения по умолчанию — как у компонента в Figma.
@@ -43,6 +45,7 @@ const props = withDefaults(
     nativeType: 'button',
     block: false,
     ariaLabel: undefined,
+    pressed: undefined,
   },
 );
 
@@ -57,6 +60,7 @@ const isDropdown = computed(() => props.type === 'dropdown');
       class="ds-button"
       :class="[`ds-button--${type}`, `ds-button--${size}`, { 'is-icon-only': !showLabel }]"
       :aria-label="ariaLabel"
+      :aria-pressed="pressed"
       :type="nativeType"
       :disabled="disabled"
       :aria-haspopup="isDropdown ? 'menu' : undefined"
@@ -137,7 +141,7 @@ const isDropdown = computed(() => props.type === 'dropdown');
 .ds-button--l {
   height: var(--space-40);
   padding: 0 calc(var(--space-16) - var(--stroke-thin));
-  border-radius: var(--radius-4);
+  border-radius: var(--radius-8);
   font: var(--typo-form-button-l-label);
 }
 /* Без подписи — квадрат (Figma: отступы space/12 у экземпляра L 40, напр. удаление в CartItem). */
@@ -155,7 +159,7 @@ const isDropdown = computed(() => props.type === 'dropdown');
 .ds-button--s {
   height: var(--space-24);
   padding: 0 calc(var(--space-8) - var(--stroke-thin));
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-8);
   font: var(--typo-form-button-s-label);
 }
 

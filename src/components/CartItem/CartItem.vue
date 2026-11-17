@@ -27,6 +27,13 @@ export interface CartItemBundleItem {
   oldPrice?: string;
   price: string;
 }
+/** Оптовый порог (Compact, слот wholesale): подпись «20 499 грн від 5 шт.», клик ставит количество = quantity. */
+export interface CartItemWholesaleTier {
+  label: string;
+  quantity: number;
+  /** Старший достигнутый порог: button-front Primary + aria-pressed (в Figma-слоте пока только Default — Vue-решение). */
+  active?: boolean;
+}
 export interface CartItemGift {
   title: string;
   image?: string;
@@ -49,7 +56,7 @@ const props = withDefaults(
     oldPrice?: string;
     /** Сумма по строке (цена × количество). */
     sum?: string;
-    /** Старая сумма (только набор Compact). */
+    /** Старая сумма над суммой: набор Compact; товар Compact — при достигнутом оптовом пороге. */
     oldSum?: string;
     quantity?: number;
     /** Максимум для счётчика (по умолчанию — как у Counter). */
@@ -57,7 +64,10 @@ const props = withDefaults(
     /** Минимум для счётчика (минимальный заказ товара; по умолчанию — как у Counter). */
     minQuantity?: number;
     minOrderText?: string;
+    /** Подсказка опта текстом — только Size=Default. */
     wholesaleText?: string;
+    /** Пороги опта кнопками — Size=Compact (Figma: слот wholesale, button-front Default S). */
+    wholesaleTiers?: CartItemWholesaleTier[];
     discountLabel?: string;
     giftTagLabel?: string;
     /** Подсказка (i) у метки «Подарунок»: что подарок — покупка за 1 грн. */
@@ -99,6 +109,7 @@ const props = withDefaults(
     quantity: 1,
     minOrderText: 'Замовлення від 2 одиниць',
     wholesaleText: 'додайте ще 5 одиниць та заощадьте 240 гривень',
+    wholesaleTiers: () => [{ label: '20 499 грн від 5 шт.', quantity: 5 }],
     discountLabel: 'smart-10 (−649 грн)',
     giftTagLabel: 'Подарунок',
     giftHint: 'Подарунок додається до замовлення як покупка за 1 грн',
@@ -128,8 +139,11 @@ const props = withDefaults(
   },
 );
 
-/** `wholesale` — клик по подсказке опта «додайте ще N одиниць…»: экран добавляет недостающие единицы. */
-const emit = defineEmits<{ 'update:quantity': [value: number]; delete: []; wholesale: [] }>();
+/**
+ * `wholesale` — клик по текстовой подсказке опта (Default): экран добавляет недостающие единицы.
+ * `wholesale-tier` — клик по кнопке порога (Compact): экран ставит количество = порогу (в том числе вниз).
+ */
+const emit = defineEmits<{ 'update:quantity': [value: number]; delete: []; wholesale: []; 'wholesale-tier': [quantity: number] }>();
 
 const qty = ref(props.quantity);
 watch(() => props.quantity, (v) => (qty.value = v));
@@ -175,11 +189,27 @@ watch(qty, (v) => emit('update:quantity', v));
             <Counter v-model="qty" show-units :max="maxQuantity" :min="minQuantity" />
           </div>
           <InfoTag v-if="showElectronic" :label="electronicLabel" />
-          <Price class="ci__sum" :price="sum" :show-old-price="false" size="s" />
+          <!-- Старая сумма над суммой — как у набора (Figma 1:1175): товар Compact с достигнутым оптовым порогом. -->
+          <div v-if="oldSum" class="ci__sum ci__bundle-sum">
+            <span class="ci__old">{{ oldSum }}</span>
+            <Price :price="sum" :show-old-price="false" size="s" />
+          </div>
+          <Price v-else class="ci__sum" :price="sum" :show-old-price="false" size="s" />
         </div>
-        <button v-if="showWholesale" type="button" class="ci__wholesale ci__wholesale--compact" @click="emit('wholesale')">
-          <Icon name="plus-16" /><span>{{ wholesaleText }}</span>
-        </button>
+        <!-- Слот wholesale (Figma 6349:456): по умолчанию ряд порогов — button-front Default S, gap space/8. -->
+        <div v-if="showWholesale" class="ci__tiers" role="group" aria-label="Оптові ціни">
+          <slot name="wholesale">
+            <ButtonFront
+              v-for="t in wholesaleTiers"
+              :key="t.quantity"
+              :type="t.active ? 'primary' : 'default'"
+              size="s"
+              :label="t.label"
+              :pressed="!!t.active"
+              @click="emit('wholesale-tier', t.quantity)"
+            />
+          </slot>
+        </div>
       </div>
     </div>
     <div v-if="showGift" class="ci__gift">
@@ -393,7 +423,12 @@ watch(qty, (v) => emit('update:quantity', v));
 .ci__wholesale > :deep(.ds-icon) {
   margin-top: var(--space-2);
 }
-.ci__wholesale--compact {
+/* Compact: пороги опта кнопками (Figma 6349:456 / 6349:459): отступ сверху space/8, между кнопками space/8.
+   В Figma без переноса; в коде перенос, чтобы третий порог не обрезался на узкой карточке. */
+.ci__tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
   padding-top: var(--space-8);
 }
 .ci__counter-box {
@@ -401,17 +436,17 @@ watch(qty, (v) => emit('update:quantity', v));
   flex: none;
   align-items: center;
 }
+/* Удаление (Compact) прижато в правый верхний угол: 4 / 4 от края (Figma 6422:27038, 6426:585) — ховер 40×40 не вылезает за карточку. */
 .ci__delete {
   position: absolute;
-  right: var(--space-16);
+  top: var(--space-4);
+  right: var(--space-4);
   display: flex;
   align-items: center;
   justify-content: center;
   width: var(--space-40);
   height: var(--space-40);
 }
-.ci__delete--product { top: var(--space-4); }
-.ci__delete--bundle { top: var(--space-16); }
 
 /* ---------- Default ---------- */
 .ci--default {

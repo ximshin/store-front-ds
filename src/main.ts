@@ -9,6 +9,7 @@ export { default as SocialLoginButton } from './components/SocialLoginButton/Soc
 export { default as InputMain } from './components/InputMain/InputMain.vue';
 export { default as Input } from './components/Input/Input.vue';
 export { default as Select } from './components/Select/Select.vue';
+export { default as SelectRichOption } from './components/Select/SelectRichOption.vue';
 export { default as SearchBar } from './components/SearchBar/SearchBar.vue';
 export { default as SearchIconSize } from './components/SearchBar/SearchIconSize.vue';
 export { default as CrossIconSize } from './components/SearchBar/CrossIconSize.vue';

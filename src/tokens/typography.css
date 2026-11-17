@@ -6,6 +6,7 @@
   --typo-heading-small-card-title: var(--font-weight-medium) var(--font-size-16)/var(--font-line-height-24) var(--font-sans), system-ui, sans-serif;
   --typo-heading-group-title: var(--font-weight-bold) var(--font-size-14)/var(--font-line-height-20) var(--font-sans), system-ui, sans-serif;
   --typo-heading-h4: var(--font-weight-bold) var(--font-size-16)/var(--font-line-height-24) var(--font-sans), system-ui, sans-serif;
+  --typo-heading-section-title: var(--font-weight-bold) var(--font-size-16)/var(--font-line-height-20) var(--font-sans), system-ui, sans-serif;
   --typo-paragraph-p1: var(--font-weight-regular) var(--font-size-14)/var(--font-line-height-20) var(--font-sans), system-ui, sans-serif;
   --typo-paragraph-p1-bold: var(--font-weight-bold) var(--font-size-14)/var(--font-line-height-20) var(--font-sans), system-ui, sans-serif;
   --typo-paragraph-tooltip: var(--font-weight-regular) var(--font-size-12)/var(--font-line-height-20) var(--font-sans), system-ui, sans-serif;
@@ -77,6 +78,11 @@
 
 .ds-text-heading-h4 {
   font: var(--typo-heading-h4);
+  letter-spacing: 0;
+}
+
+.ds-text-heading-section-title {
+  font: var(--typo-heading-section-title);
   letter-spacing: 0;
 }
 

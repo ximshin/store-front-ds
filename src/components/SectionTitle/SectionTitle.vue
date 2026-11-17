@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /**
  * SectionTitle — заголовок блока формы / секции (Figma 6346:516): «Одержувач», «Доставка», «Оплата», «Ваше замовлення».
- * Size: S — DS/Heading/Group Title 14/20, M — DS/Heading/H4 16/24, L — DS/Heading/Page Title 18/24.
- * Справа слот `action` (по умолчанию ButtonFront Flat M с user-24 «Увійти»). Нижний отступ space/8, ширина Fill.
+ * Size: S — DS/Heading/Group Title 14/20, M — DS/Heading/Section Title 16/20, L — DS/Heading/Page Title 18/24.
+ * Справа слот `action` (по умолчанию ButtonFront Flat M с user-24 «Увійти»); в M он не влияет на высоту (строка 20 + space/8).
+ * Нижний отступ space/8, ширина Fill.
  *
  * Figma → props: Size → size, Title → title, Show action → showAction, слот action → slot `action`.
  */
@@ -62,8 +63,21 @@ withDefaults(
 .ds-section-title--s .ds-section-title__text {
   font: var(--typo-heading-group-title);
 }
+/* M (Figma 6346:502): заголовок 16/20, действие в Figma абсолютом справа по центру первой строки — высоту не раздувает.
+   В коде то же отрицательными margin-block: кнопка 32 выступает за строку 20 на 6 сверху и снизу,
+   но остаётся в потоке, поэтому длинный заголовок переносится, а не заезжает под кнопку. */
+.ds-section-title--m {
+  align-items: flex-start;
+}
+.ds-section-title--m.has-action {
+  min-height: 0;
+}
 .ds-section-title--m .ds-section-title__text {
-  font: var(--typo-heading-h4);
+  font: var(--typo-heading-section-title);
+}
+.ds-section-title--m .ds-section-title__action {
+  margin-block: calc((var(--font-line-height-20) - var(--space-32)) / 2);
+  overflow: visible;
 }
 .ds-section-title--l .ds-section-title__text {
   font: var(--typo-heading-page-title);

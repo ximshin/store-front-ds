@@ -130,14 +130,13 @@ const emit = defineEmits<{
   padding-bottom: var(--space-8);
 }
 
-/* Макет HOROSHOP-8318: «Увійти» — на всю ширину, radius/8, Special 16 Medium. */
+/* Макет HOROSHOP-8318: «Увійти» — на всю ширину, Special 16 Medium (radius/8 — как у всех ButtonFront). */
 .ds-login-form__submit {
   display: flex;
   width: 100%;
 }
 .ds-login-form__submit :deep(.ds-button) {
   width: 100%;
-  border-radius: var(--radius-8);
   font: var(--typo-special-special-16-medium);
 }
 

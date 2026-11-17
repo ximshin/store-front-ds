@@ -31,6 +31,11 @@
       "className": "ds-text-heading-h4"
     },
     {
+      "figma": "DS/Heading/Section Title",
+      "cssVar": "--typo-heading-section-title",
+      "className": "ds-text-heading-section-title"
+    },
+    {
       "figma": "DS/Paragraph/P1",
       "cssVar": "--typo-paragraph-p1",
       "className": "ds-text-paragraph-p1"

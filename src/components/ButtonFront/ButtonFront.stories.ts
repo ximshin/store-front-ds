@@ -17,7 +17,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Кнопка витрины (Figma `2520:562`). Size: S 24 / M 32 / L 40, подписи `DS/Form/Button S|M|L label`. Радиус: L — radius/4, M — radius/8, S — radius/6. Иконки слева / справа — слоты `left` / `right`.',
+          'Кнопка витрины (Figma `2520:562`). Size: S 24 / M 32 / L 40, подписи `DS/Form/Button S|M|L label`. Радиус radius/8 у всех размеров. Иконки слева / справа — слоты `left` / `right`.',
       },
     },
   },

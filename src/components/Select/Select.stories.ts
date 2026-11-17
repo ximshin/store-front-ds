@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import Select from './Select.vue';
+import SelectRichOption from './SelectRichOption.vue';
+import { ref } from 'vue';
 
 const POSITIONS = ['top', 'left'] as const;
 const SIZES = ['m', 'l'] as const;
@@ -189,6 +191,34 @@ export const EmptyRequired: Story = {
       <div>
         <Select v-bind="args" />
         <p class="ds-text-special-special-12-regular" style="margin:var(--space-4) 0 0;color:var(--text-danger)">Оберіть відділення, щоб продовжити</p>
+      </div>`,
+  }),
+};
+
+/** Size=rich (Figma 6471:4687): способ доставки — служба + логотип / цена; открытый список — SelectRichOption. */
+export const Rich: Story = {
+  parameters: { maxWidth: 480 },
+  render: () => ({
+    components: { Select, SelectRichOption },
+    setup() {
+      const options = [
+        { id: 'np', name: 'Нова Пошта', sub: 'від 60 грн, за тарифами перевізника' },
+        { id: 'courier', name: "Кур'єром по Києву", sub: '150 грн' },
+        { id: 'pickup', name: 'Самовивіз з магазину', sub: 'Безкоштовно' },
+      ];
+      const current = ref('np');
+      const open = ref(true);
+      const pick = (id: string) => { current.value = id; open.value = false; };
+      const cur = () => options.find((o) => o.id === current.value)!;
+      return { options, current, open, pick, cur };
+    },
+    template: `
+      <div style="min-height:320px">
+        <Select v-model:show-list="open" size="rich" label="Спосіб доставки" :placeholder="cur().name" :sub="cur().sub">
+          <template #list>
+            <SelectRichOption v-for="o in options" :key="o.id" :title="o.name" :sub="o.sub" :checked="o.id === current" @click="pick(o.id)" />
+          </template>
+        </Select>
       </div>`,
   }),
 };

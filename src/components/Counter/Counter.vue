@@ -75,7 +75,7 @@ function step(delta: number) {
   padding: var(--space-0);
   overflow: clip;
   border: var(--stroke-thin) solid var(--border-input);
-  border-radius: var(--radius-4);
+  border-radius: var(--radius-8);
   color: var(--text-primary);
 }
 
@@ -95,15 +95,15 @@ function step(delta: number) {
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
+/* Outer corners follow the frame (radius/8), the side facing the number is square. */
 .ds-counter__btn--minus {
-  border-radius: 0 var(--radius-8) var(--radius-8) 0;
+  border-radius: var(--radius-8) 0 0 var(--radius-8);
 }
 .ds-counter__btn--plus {
-  border-radius: var(--radius-8) 0 0 var(--radius-8);
+  border-radius: 0 var(--radius-8) var(--radius-8) 0;
 }
 .ds-counter__btn:hover:not(:disabled) {
   background: var(--surface-hover);
-  border-radius: var(--radius-4);
 }
 .ds-counter__btn:disabled {
   cursor: default;

@@ -225,7 +225,7 @@ function setMode(value: string) {
 .folder-panel__login :deep(.ds-login-form__forgot-link) {
   height: 32px;
   padding: 0 var(--space-12);
-  border-radius: var(--radius-4);
+  border-radius: var(--radius-8);
 }
 .folder-panel__login :deep(.ds-login-form__forgot-link:hover) {
   background: var(--surface-hover);

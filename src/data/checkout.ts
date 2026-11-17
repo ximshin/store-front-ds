@@ -11,6 +11,7 @@ import imgOveralls from '../assets/products/overalls.png';
 import imgIphone from '../assets/products/iphone.png';
 import imgDress from '../assets/products/dress.png';
 import imgCandle from '../assets/products/candle.png';
+import logoNovaPoshta from '../assets/logos/nova-poshta.svg';
 import imgTshirtBurgundy from '../assets/products/tshirt-burgundy.png';
 import imgSweatshirt from '../assets/products/sweatshirt.png';
 import imgMacbook from '../assets/products/macbook.png';
@@ -35,8 +36,8 @@ export interface CartLine {
   qty: number;
   minQty?: number;
   minOrderText?: string;
-  /** Wholesale tier: from `minQty` units the price per unit is lower by `discount`. */
-  wholesale?: { minQty: number; discount: number };
+  /** Wholesale tiers, ascending: from `minQty` units the price per unit is lower by `discount`. */
+  wholesale?: { minQty: number; discount: number }[];
   electronic?: boolean;
   gift?: { title: string; oldPrice: number; image?: string };
   parts?: BundlePart[];
@@ -47,10 +48,17 @@ export type DeliveryId = 'np' | 'up' | 'courier' | 'pickup';
 export type PaymentId = 'card' | 'cod' | 'parts';
 export type Mode = 'full' | 'quick';
 
-export const deliveryOptions: { id: DeliveryId; label: string; branches?: string[] }[] = [
+/**
+ * Delivery options. `name` / `sub` / `logo` — the rich select of /checkout-v2 (Figma Select Size=rich, dd-list 28:20522):
+ * service name (+ logo), second line — price or terms (in line with «Доставка» in the summary).
+ */
+export const deliveryOptions: { id: DeliveryId; label: string; name: string; sub: string; logo?: string; branches?: string[] }[] = [
   {
     id: 'np',
     label: 'Новою поштою',
+    name: 'Нова Пошта',
+    sub: 'від 60 грн, за тарифами перевізника',
+    logo: logoNovaPoshta,
     branches: [
       'Відділення №1: вул. Пирогівський шлях, 135',
       'Відділення №12: вул. Хрещатик, 22',
@@ -60,15 +68,21 @@ export const deliveryOptions: { id: DeliveryId; label: string; branches?: string
   {
     id: 'up',
     label: 'Укрпоштою',
+    name: 'Укрпошта',
+    sub: 'від 45 грн, за тарифами перевізника',
     branches: ['Відділення 01001: вул. Хрещатик, 22', 'Відділення 02068: просп. Бажана, 8'],
   },
-  { id: 'courier', label: "Кур'єром по Києву" },
-  { id: 'pickup', label: 'Самовивіз з магазину' },
+  { id: 'courier', label: "Кур'єром по Києву", name: "Кур'єром по Києву", sub: '150 грн' },
+  { id: 'pickup', label: 'Самовивіз з магазину', name: 'Самовивіз з магазину', sub: 'Безкоштовно' },
 ];
-export const paymentOptions: { id: PaymentId; label: string }[] = [
-  { id: 'card', label: 'На карту Visa/MasterCard' },
-  { id: 'cod', label: 'Готівкою при отриманні' },
-  { id: 'parts', label: '«Покупка частинами» від monobank' },
+/** City list for the «Місто» select (/checkout-v2; Figma: Select in the «Доставка» section). */
+export const cityOptions = ['Київ', 'Львів', 'Одеса', 'Харків', 'Дніпро', 'Запоріжжя', 'Вінниця'];
+/** Payment options. `sub` — the second line of the rich select on /checkout-v2 (terms the buyer may not expect). */
+// `icon` — the leading icon of the payment select (/checkout-v2): a placeholder for cards / cash, the monobank paw for installments.
+export const paymentOptions: { id: PaymentId; label: string; sub: string; icon: string }[] = [
+  { id: 'card', label: 'На карту Visa/MasterCard', sub: 'Онлайн, одразу після оформлення', icon: 'payment-24' },
+  { id: 'cod', label: 'Готівкою при отриманні', sub: 'Комісія перевізника 2% + 20 грн', icon: 'payment-24' },
+  { id: 'parts', label: '«Покупка частинами» від monobank', sub: 'До 4 платежів без переплат · знижки не діють', icon: 'monobank-24' },
 ];
 const COURIER_PRICE = 150;
 const PROMOS: Record<string, string> = {
@@ -98,8 +112,11 @@ function initialLines(): CartLine[] {
       oldPrice: 25999,
       price: 21999,
       qty: 2,
-      // «додайте ще 3 одиниці та заощадьте 1 200 грн»: 5 × 240
-      wholesale: { minQty: 5, discount: 240 },
+      // Tiers as buttons «21 759 грн від 5 шт.», «21 499 грн від 10 шт.» (CartItem Compact, Figma slot wholesale 6349:456).
+      wholesale: [
+        { minQty: 5, discount: 240 },
+        { minQty: 10, discount: 500 },
+      ],
     },
     {
       id: 'bundle-basic',
@@ -173,6 +190,9 @@ function initialForm() {
   return {
     lastName: 'Шевченко',
     firstName: 'Олександр',
+    /** Optional: shown by «Додати по батькові» (/checkout-v2). */
+    patronymic: '',
+    showPatronymic: false,
     phone: '+38 (066) 123-45-67',
     email: 'poshta@gmail.com',
     country: 'Україна',
@@ -222,29 +242,44 @@ export const checkout = reactive({
 export const discountsBlocked = computed(() => checkout.mode === 'full' && checkout.form.payment === 'parts');
 const smartActive = computed(() => checkout.promos.includes('SMART10') && !discountsBlocked.value);
 
+/** Price per unit before wholesale (smart discount applied only while it is active). */
+function basePrice(line: CartLine): number {
+  return line.smart && !smartActive.value ? line.price + line.smart.amount : line.price;
+}
+/** Highest wholesale tier reached by the current quantity. */
+function reachedTier(line: CartLine) {
+  return [...(line.wholesale ?? [])].reverse().find((t) => line.qty >= t.minQty);
+}
 export function unitPrice(line: CartLine): number {
-  const base = line.smart && !smartActive.value ? line.price + line.smart.amount : line.price;
-  return line.wholesale && line.qty >= line.wholesale.minQty ? base - line.wholesale.discount : base;
+  return basePrice(line) - (reachedTier(line)?.discount ?? 0);
 }
-function units(n: number): string {
-  const d = n % 10, dd = n % 100;
-  if (d === 1 && dd !== 11) return `${n} одиницю`;
-  if (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) return `${n} одиниці`;
-  return `${n} одиниць`;
+/**
+ * Crossed-out price per unit: once a wholesale tier applies — the price before wholesale (in line with the crossed
+ * line sum `wholesaleOldSum`); otherwise the sale «was» price.
+ */
+export function crossedPrice(line: CartLine): number | undefined {
+  const was = reachedTier(line) ? basePrice(line) : line.oldPrice;
+  return was !== undefined && was !== unitPrice(line) ? was : undefined;
 }
-/** Wholesale hint while the tier is not reached: «додайте ще 3 одиниці та заощадьте 1 200 грн». */
-export function wholesaleHint(line: CartLine): string | undefined {
-  if (!line.wholesale || line.qty >= line.wholesale.minQty) return undefined;
-  const need = line.wholesale.minQty - line.qty;
-  return `додайте ще ${units(need)} та заощадьте ${money(line.wholesale.minQty * line.wholesale.discount)}`;
+/** Line sum at the price before wholesale, recalculated with the quantity — crossed out above the sum (as a bundle). */
+export function wholesaleOldSum(line: CartLine): number | undefined {
+  return reachedTier(line) ? basePrice(line) * line.qty : undefined;
 }
-/** Click on the hint: add the missing units to reach the wholesale price. */
-export function addToWholesale(id: string): void {
+/** Wholesale tiers as buttons (CartItem Compact): «21 759 грн від 5 шт.»; the highest reached tier is active. */
+export function wholesaleTiers(line: CartLine): { label: string; quantity: number; active: boolean }[] {
+  const reached = reachedTier(line);
+  return (line.wholesale ?? []).map((t) => ({
+    label: `${money(basePrice(line) - t.discount)} від ${t.minQty} шт.`,
+    quantity: t.minQty,
+    active: t === reached,
+  }));
+}
+/** Click on a tier: the quantity becomes the tier's minimum — up or down. */
+export function setWholesaleQty(id: string, qty: number): void {
   const line = checkout.lines.find((l) => l.id === id);
-  if (!line?.wholesale || line.qty >= line.wholesale.minQty) return;
-  const need = line.wholesale.minQty - line.qty;
-  line.qty = line.wholesale.minQty;
-  showToast('success', `Додано ${units(need)} — діє оптова ціна`);
+  if (!line || line.qty === qty) return;
+  line.qty = qty;
+  showToast('success', `Кількість змінено на ${qty} шт. — діє оптова ціна`);
 }
 export function showSmart(line: CartLine): boolean {
   return !!line.smart && smartActive.value;
@@ -412,7 +447,10 @@ function snapshot(kind: 'order' | 'quick') {
     number: ++orderNumber,
     phone: f.phone,
     email: f.email,
-    recipient: `${f.firstName} ${f.lastName}`.trim(),
+    // With a patronymic — the full Ukrainian order «Прізвище Ім'я По батькові»; without — as before («Ім'я Прізвище»).
+    recipient: (f.showPatronymic && f.patronymic.trim()
+      ? `${f.lastName} ${f.firstName} ${f.patronymic}`
+      : `${f.firstName} ${f.lastName}`).trim(),
     delivery:
       f.delivery === 'courier'
         ? `${deliveryOption.value.label}: ${f.courierAddress}`
