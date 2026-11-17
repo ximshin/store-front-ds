@@ -57,7 +57,7 @@ async function onCallback() {
           <h1 class="ds-text-display-m head__title">Оформлення замовлення</h1>
           <!-- Figma switch-box 10:1880: padding-bottom 8. -->
           <div ref="switchEl" class="head__switch">
-            <ModeSwitch :model-value="checkout.mode" :items="modes" label="Спосіб оформлення" @update:model-value="setMode" />
+            <ModeSwitch :model-value="checkout.mode" :items="modes" label="Спосіб оформлення" :look="narrow ? 'filled' : 'soft'" @update:model-value="setMode" />
           </div>
         </div>
         <CheckoutFormV2 v-if="checkout.mode === 'full'" :single="single" :labels="labels" :narrow="narrow" />

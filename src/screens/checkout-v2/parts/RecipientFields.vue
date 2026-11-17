@@ -39,7 +39,7 @@ async function toggleComment() {
           <Input :label-position="labels" v-model="f.firstName" size="l" label="Ім'я" placeholder="Ім'я" :error="!!e.firstName" :hint="e.firstName" @focusout="validateField('firstName')" />
         </div>
         <!-- The patronymic is one column wide, under «Прізвище». -->
-        <div v-if="f.showPatronymic" ref="patronymicEl" class="rf__row">
+        <div v-if="f.showPatronymic" ref="patronymicEl" class="rf__row rf__patronymic">
           <Input :label-position="labels" v-model="f.patronymic" size="l" label="По батькові" placeholder="По батькові" clearable />
           <span class="rf__spacer" aria-hidden="true" />
         </div>
@@ -96,6 +96,11 @@ async function toggleComment() {
 .rf__row {
   display: flex;
   gap: var(--space-8);
+}
+/* The patronymic sits inside the name group (gap 8 to the link under it), but from the name row it needs the
+   common field gap 16: 8 of the group + 8 here. */
+.rf__patronymic {
+  margin-top: var(--space-8);
 }
 .rf__row > * {
   flex: 1 1 0;

@@ -2,8 +2,13 @@
 // Local block of /checkout-v2: the switch «Звичайне оформлення | Швидке замовлення» (Figma switch-box 10:1880).
 // Not in the Store Front DS (the mock uses a Switch from another library) — local composition on DS tokens:
 // track text/primary at 5 % (derived — no theme setting), radius 8, padding 2; segment 36, active — surface/default, radius 6.
+// look="filled" (/checkout-v2-labels-left-400, Figma switch-box 10:1880 as updated): track 40 with a border/input frame, no tint
+// (the inactive segment has no background), radius 8, segments edge to edge over the frame; active — surface/action-primary with text/primary-white, radius 6.
 // A radio group: role="radiogroup" / role="radio", arrows move the choice.
-const props = defineProps<{ modelValue: string; items: { value: string; label: string }[]; label?: string }>();
+const props = withDefaults(
+  defineProps<{ modelValue: string; items: { value: string; label: string }[]; label?: string; look?: 'soft' | 'filled' }>(),
+  { label: undefined, look: 'soft' },
+);
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 
 function onKey(e: KeyboardEvent, i: number) {
@@ -18,7 +23,7 @@ function onKey(e: KeyboardEvent, i: number) {
 </script>
 
 <template>
-  <div class="ms" role="radiogroup" :aria-label="label">
+  <div class="ms" :class="'ms--' + look" role="radiogroup" :aria-label="label">
     <button
       v-for="(it, i) in items"
       :key="it.value"
@@ -66,5 +71,24 @@ function onKey(e: KeyboardEvent, i: number) {
 .ms__item:focus-visible {
   outline: var(--stroke-thin) solid var(--border-input-active);
   outline-offset: calc(-1 * var(--stroke-thin));
+}
+/* filled: frame border/input 1, segments 40 cover it (Figma padding −1) — the active one hides the frame under it. */
+.ms--filled {
+  padding: 0;
+  border: var(--stroke-thin) solid var(--border-input);
+  /* No tint under the inactive segment — only the frame. */
+  background: none;
+}
+.ms--filled .ms__item {
+  min-height: var(--space-40);
+  margin: calc(-1 * var(--stroke-thin));
+}
+.ms--filled .ms__item.is-active {
+  background: var(--surface-action-primary);
+  color: var(--text-primary-white);
+}
+.ms--filled .ms__item:focus-visible {
+  outline-offset: calc(-2 * var(--stroke-thin));
+  outline-color: var(--text-primary-white);
 }
 </style>
