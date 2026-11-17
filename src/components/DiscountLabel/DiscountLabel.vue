@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
  * DiscountLabel — метка скидки у товара (Figma 6348:657): coupon-16 (icon/success) + DS/Paragraph/P1 text/success,
- * промежуток space/4. Не путать с DiscountLine (строка итогов).
+ * промежуток space/4. В коде текст того же зелёного, что и иконка (icon/success, green-40 #3FA659) — одним цветом.
+ * Не путать с DiscountLine (строка итогов).
  *
  * Figma → props: Label → label (или слот), Show icon → showIcon.
  */
@@ -29,7 +30,8 @@ withDefaults(defineProps<{ label?: string; showIcon?: boolean }>(), { label: 'sm
 }
 .ds-discount-label__text {
   font: var(--typo-paragraph-p1);
-  color: var(--text-success);
+  /* One green for the whole label: the icon colour (icon/success, green-40), not text/success (green-30). */
+  color: var(--icon-success);
   white-space: nowrap;
 }
 </style>
