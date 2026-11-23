@@ -15,7 +15,13 @@ import {
 // are hidden below — the cut-off list otherwise gives no sign it scrolls.
 // split (/checkout-v2, Figma 1:1048 order-box): two cards — the summary (promo, warning, totals) on top, then the items
 // card with its own title «Ваше замовлення · N товарів» and the list. Same DOM, arranged by CSS (order + borders).
-const props = withDefaults(defineProps<{ scrollHint?: boolean; split?: boolean }>(), { scrollHint: false, split: false });
+// promoAlways (/checkout-v2-comment, with split): no chips row and no «Додати код» — the promo field is always shown;
+// an applied code is seen only as its discount line in the totals (removable there, Figma 1:1172).
+const props = withDefaults(defineProps<{ scrollHint?: boolean; split?: boolean; promoAlways?: boolean }>(), {
+  scrollHint: false,
+  split: false,
+  promoAlways: false,
+});
 
 const router = useRouter();
 const promoForm = ref<HTMLFormElement | null>(null);
@@ -85,7 +91,7 @@ function onFormFocusOut(e: FocusEvent) {
     <div v-if="!isEmpty" class="order__summary">
       <!-- split: the promo row first, the field under it (Figma 1:1167). -->
       <!-- The row exists only while codes are applied; with none the field alone is shown (as on /checkout-accordion). -->
-      <div v-if="split && checkout.promos.length" class="order__promo">
+      <div v-if="split && !promoAlways && checkout.promos.length" class="order__promo">
         <div class="order__chips">
           <PromoChip v-for="code in checkout.promos" :key="code" :code="code" @remove="removePromo(code)" />
         </div>
@@ -95,12 +101,12 @@ function onFormFocusOut(e: FocusEvent) {
       </div>
       <!-- Flow «додати купон» (Figma 1903:76187): the field replaces the chips row; Esc returns to the chips. -->
       <form
-        v-if="formOpen"
+        v-if="formOpen || promoAlways"
         ref="promoForm"
         class="order__promo-form"
         @submit.prevent="applyPromo"
-        @keydown.esc="closeForm"
-        @focusout="onFormFocusOut"
+        @keydown.esc="!promoAlways && closeForm()"
+        @focusout="!promoAlways && onFormFocusOut($event)"
       >
         <!-- Close (back to the chips) — only when there are applied codes to go back to; not in split. -->
         <ButtonFront

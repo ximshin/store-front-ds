@@ -4,9 +4,13 @@
 // track text/primary at 5 % (derived — no theme setting), radius 8, padding 2; segment 36, active — surface/default, radius 6.
 // look="filled" (/checkout-v2-labels-left-400, Figma switch-box 10:1880 as updated): track 40 with a border/input frame, no tint
 // (the inactive segment has no background), radius 8, segments edge to edge over the frame; active — surface/action-primary with text/primary-white, radius 6.
+// look="compact" (/checkout-v2-comment, Figma toggle-box 89:1229): hugs the labels, height 28, frame border/input radius 8,
+// square segments flush to the frame; active — surface/hover, labels Special 13 Regular.
+// look="compact-dark" (/checkout-v2, Figma toggle-box 89:1229 · Switch 92:3614): hugs the labels, frame border/input radius 8,
+// padding 2, segments 32 (padding 8); active — surface/action-primary with text/primary-white, radius 6.
 // A radio group: role="radiogroup" / role="radio", arrows move the choice.
 const props = withDefaults(
-  defineProps<{ modelValue: string; items: { value: string; label: string }[]; label?: string; look?: 'soft' | 'filled' }>(),
+  defineProps<{ modelValue: string; items: { value: string; label: string }[]; label?: string; look?: 'soft' | 'filled' | 'compact' | 'compact-dark' }>(),
   { label: undefined, look: 'soft' },
 );
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
@@ -90,5 +94,48 @@ function onKey(e: KeyboardEvent, i: number) {
 .ms--filled .ms__item:focus-visible {
   outline-offset: calc(-2 * var(--stroke-thin));
   outline-color: var(--text-primary-white);
+}
+/* compact: hugs the labels, height 28, frame border/input with radius 8 clipping square segments (no inner padding);
+   active — surface/hover, text stays text/primary; labels DS/Special/Special 13 Regular, padding 0 8. */
+.ms--compact {
+  display: inline-flex;
+  height: calc(var(--space-24) + var(--space-4));
+  padding: 0;
+  overflow: clip;
+  border: var(--stroke-thin) solid var(--border-input);
+  background: none;
+}
+.ms--compact .ms__item {
+  flex: none;
+  min-height: 0;
+  padding: 0 var(--space-8);
+  border-radius: 0;
+  font: var(--typo-special-special-13-regular);
+  white-space: nowrap;
+}
+.ms--compact .ms__item.is-active {
+  background: var(--surface-hover);
+}
+.ms--compact .ms__item:focus-visible {
+  outline-offset: calc(-2 * var(--stroke-thin));
+}
+/* compact-dark: hugs the labels; frame border/input, padding 2, segments 32 — active dark, radius 6. */
+.ms--compact-dark {
+  display: inline-flex;
+  border: var(--stroke-thin) solid var(--border-input);
+  background: none;
+}
+.ms--compact-dark .ms__item {
+  flex: none;
+  min-height: var(--space-32);
+  white-space: nowrap;
+}
+.ms--compact-dark .ms__item.is-active {
+  background: var(--surface-action-primary);
+  color: var(--text-primary-white);
+}
+.ms--compact-dark .ms__item.is-active:focus-visible {
+  outline-color: var(--text-primary-white);
+  outline-offset: calc(-2 * var(--stroke-thin));
 }
 </style>

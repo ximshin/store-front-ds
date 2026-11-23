@@ -8,7 +8,8 @@ import { Input, ButtonFront, Icon } from '../../../main';
 import { checkout, validateField } from '../../../data/checkout';
 
 // labels left: inputs get the DS Label position=Left; rows become one field per line, links line up with the fields.
-withDefaults(defineProps<{ labels?: 'top' | 'left' }>(), { labels: 'top' });
+// comment=false (/checkout-v2-comment): the comment lives in its own section after «Оплата» (CommentSection).
+withDefaults(defineProps<{ labels?: 'top' | 'left'; comment?: boolean }>(), { labels: 'top', comment: true });
 
 const f = checkout.form;
 const e = checkout.errors;
@@ -51,7 +52,7 @@ async function toggleComment() {
         <Input :label-position="labels" v-model="f.phone" size="l" type="tel" label="Телефон" placeholder="+38 (0XX) XXX-XX-XX" :error="!!e.phone" :hint="e.phone" @focusout="validateField('phone')" />
         <Input :label-position="labels" v-model="f.email" size="l" type="email" label="Е-пошта" placeholder="name@mail.com" :error="!!e.email" :hint="e.email" @focusout="validateField('email')" />
       </div>
-      <div v-if="f.showComment" ref="commentEl">
+      <div v-if="comment && f.showComment" ref="commentEl">
         <Input
           v-model="f.comment"
           :label-position="labels"
@@ -65,7 +66,7 @@ async function toggleComment() {
         />
       </div>
     </div>
-    <div class="rf__link form__indent">
+    <div v-if="comment" class="rf__link form__indent">
       <ButtonFront
         type="flat"
         size="m"

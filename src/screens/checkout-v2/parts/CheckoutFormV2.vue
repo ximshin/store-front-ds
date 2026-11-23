@@ -15,12 +15,14 @@ import {
 } from '../../../data/checkout';
 import { showToast } from '../../../data/toast';
 import RecipientFields from './RecipientFields.vue';
+import CommentSection from './CommentSection.vue';
 import SingleOption from './SingleOption.vue';
 
 // single (/checkout-v2-single): the shop has one delivery and one payment method — shown as static text.
 // labels left (/checkout-v2-labels-left): field labels in a column on the left (DS Label position=Left); elements
 // without a label (payment, links, notes, confirm) carry .form__indent and line up with the fields (screen CSS).
-const props = withDefaults(defineProps<{ single?: boolean; labels?: 'top' | 'left'; narrow?: boolean }>(), { single: false, labels: 'top', narrow: false });
+// commentBottom (/checkout-v2-comment): the comment is its own section after «Оплата» (CommentSection, Figma 85:3784).
+const props = withDefaults(defineProps<{ single?: boolean; labels?: 'top' | 'left'; narrow?: boolean; commentBottom?: boolean }>(), { single: false, labels: 'top', narrow: false, commentBottom: false });
 
 const router = useRouter();
 const f = checkout.form;
@@ -92,7 +94,7 @@ function showMap() {
           </ButtonFront>
         </template>
       </SectionTitle>
-      <RecipientFields :labels="labels" />
+      <RecipientFields :labels="labels" :comment="!commentBottom" />
     </section>
 
     <section class="form__section">
@@ -194,6 +196,8 @@ function showMap() {
         <SingleOption v-else :filled="single" :title="paymentOption.label" :sub="paymentSub" :icon="paymentOption.icon" :note="paymentNote" />
       </div>
     </section>
+
+    <CommentSection v-if="commentBottom" :labels="labels" />
 
     <CheckoutConfirm
       v-model:newsletter="f.newsletter"

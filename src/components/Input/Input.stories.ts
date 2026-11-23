@@ -102,3 +102,16 @@ export const AllVariants: Story = {
 export const Clearable: Story = {
   args: { label: 'Промокод', modelValue: 'SMART10', clearable: true, size: 'l' },
 };
+
+/** Многострочное поле (textarea): 3 строки, растёт по тексту до 8, крестик очистки у верхнего края. */
+export const Multiline: Story = {
+  args: {
+    multiline: true,
+    rows: 3,
+    size: 'l',
+    clearable: true,
+    label: 'Коментар до замовлення',
+    placeholder: 'Наприклад, зателефонуйте перед доставкою',
+    modelValue: '',
+  },
+};

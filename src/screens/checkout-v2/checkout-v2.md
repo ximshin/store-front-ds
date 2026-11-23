@@ -93,3 +93,6 @@
   - `location-stroke` — у «Обрати на мапі»;
   - `comment-stroke` / `cross-24` — у «Додати / Прибрати коментар»;
   - `tick-stroke` — галочка выбранного пункта в списках (DS Icons 6496:868).
+
+## Вариант /checkout-v2-comment (2026-11-20)
+Figma Checkout-v2 · form-section 85:3784. Комментарий вынесен из блока получателя в отдельную секцию после «Оплата», перед подтверждением (`CommentSection.vue`, проп `commentBottom`; в швидкому замовленні — тоже перед подтверждением). Поле — `Input multiline` (textarea, 3 строки, растёт до 8, ручной resize по вертикали). В Figma ДС варианта textarea у `Input` пока нет — только в коде.

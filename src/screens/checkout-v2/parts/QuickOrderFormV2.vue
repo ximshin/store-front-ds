@@ -6,9 +6,10 @@ import { useRouter } from 'vue-router';
 import { SectionTitle, ButtonFront, Icon, CheckoutConfirm } from '../../../main';
 import { checkout, isEmpty, submitQuick, logout } from '../../../data/checkout';
 import RecipientFields from './RecipientFields.vue';
+import CommentSection from './CommentSection.vue';
 
 const router = useRouter();
-withDefaults(defineProps<{ labels?: 'top' | 'left' }>(), { labels: 'top' });
+withDefaults(defineProps<{ labels?: 'top' | 'left'; commentBottom?: boolean }>(), { labels: 'top', commentBottom: false });
 
 const f = checkout.form;
 
@@ -31,8 +32,10 @@ async function onSubmit() {
         </template>
       </SectionTitle>
       <p class="form__indent form__lead ds-text-paragraph-p1">Менеджер зателефонує, уточнить доставку й оплату та оформить замовлення за вас.</p>
-      <RecipientFields :labels="labels" />
+      <RecipientFields :labels="labels" :comment="!commentBottom" />
     </section>
+
+    <CommentSection v-if="commentBottom" :labels="labels" />
 
     <CheckoutConfirm
       v-model:newsletter="f.newsletter"

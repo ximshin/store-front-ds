@@ -16,10 +16,16 @@ import { checkout, setDelivery, setPayment, type Mode } from '../../data/checkou
 // labels (/checkout-v2-labels-left): field labels in a column left of the fields (as on the shop's current checkout).
 // narrow (/checkout-v2-labels-left-400, with labels left): every field 400 wide, the form column = labels 160 + 400,
 // the form and the order column centred together — no gap between them, spare width goes to the page margins.
-const props = withDefaults(defineProps<{ single?: boolean; labels?: 'top' | 'left'; narrow?: boolean }>(), {
+// commentBottom (/checkout-v2-comment): the comment is its own section after «Оплата», the field is a textarea.
+// switchLook: a compact switch that hugs its labels (Figma toggle-box 89:1229) — /checkout-v2 compact-dark, /checkout-v2-comment compact (light).
+// promoAlways (/checkout-v2-comment): the promo field is always shown, no chips — the code is seen as its discount line.
+const props = withDefaults(defineProps<{ single?: boolean; labels?: 'top' | 'left'; narrow?: boolean; commentBottom?: boolean; promoAlways?: boolean; switchLook?: 'compact' | 'compact-dark' }>(), {
   single: false,
   labels: 'top',
   narrow: false,
+  commentBottom: false,
+  promoAlways: false,
+  switchLook: undefined,
 });
 if (props.single) {
   if (checkout.form.delivery !== 'np') setDelivery('np');
@@ -56,15 +62,15 @@ async function onCallback() {
         <div class="head">
           <h1 class="ds-text-display-m head__title">Оформлення замовлення</h1>
           <!-- Figma switch-box 10:1880: padding-bottom 8. -->
-          <div ref="switchEl" class="head__switch">
-            <ModeSwitch :model-value="checkout.mode" :items="modes" label="Спосіб оформлення" :look="narrow ? 'filled' : 'soft'" @update:model-value="setMode" />
+          <div ref="switchEl" class="head__switch" :class="{ 'head__switch--compact': !!switchLook }">
+            <ModeSwitch :model-value="checkout.mode" :items="modes" label="Спосіб оформлення" :look="switchLook ?? (narrow ? 'filled' : 'soft')" @update:model-value="setMode" />
           </div>
         </div>
-        <CheckoutFormV2 v-if="checkout.mode === 'full'" :single="single" :labels="labels" :narrow="narrow" />
-        <QuickOrderFormV2 v-else :labels="labels" />
+        <CheckoutFormV2 v-if="checkout.mode === 'full'" :single="single" :labels="labels" :narrow="narrow" :comment-bottom="commentBottom" />
+        <QuickOrderFormV2 v-else :labels="labels" :comment-bottom="commentBottom" />
       </div>
       <aside class="right">
-        <OrderCard split scroll-hint />
+        <OrderCard split scroll-hint :promo-always="promoAlways" />
       </aside>
     </main>
   </div>
@@ -176,6 +182,10 @@ async function onCallback() {
 }
 .head__switch {
   padding-bottom: var(--space-8);
+}
+/* Figma toggle-box 89:1229: no bottom padding under the compact switch. */
+.head__switch--compact {
+  padding-bottom: 0;
 }
 /* Desktop: the order column sticks to the top; the items card scrolls inside (OrderCard). */
 .right {
