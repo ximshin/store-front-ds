@@ -10,7 +10,7 @@ import {
   Input, Select, SelectRichOption, SectionTitle, ButtonFront, Icon, CheckoutConfirm,
 } from '../../../main';
 import {
-  checkout, deliveryOptions, paymentOptions, cityOptions, deliveryOption, paymentOption, isEmpty,
+  checkout, deliveryOptions, paymentOptions, countries, popularCountries, cities, deliveryOption, paymentOption, isEmpty,
   setDelivery, setPayment, validateField, clearError, submitOrder, logout,
 } from '../../../data/checkout';
 import { showToast } from '../../../data/toast';
@@ -27,7 +27,56 @@ const props = withDefaults(defineProps<{ single?: boolean; labels?: 'top' | 'lef
 const router = useRouter();
 const f = checkout.form;
 const e = checkout.errors;
-const open = ref({ city: false, delivery: false, branch: false, payment: false });
+const open = ref({ country: false, city: false, delivery: false, branch: false, payment: false });
+
+/*
+ * Searchable «Країна» / «Місто» as in the reference checkout (briefs/checkout/reference_country_city.md):
+ * - Країна: focus opens the favourite countries (popularCountries; differs from the reference, as /checkout-mobile);
+ *   search from the 1st character; leaving without a pick — back to the country;
+ *   «Наприклад, Україна» under the field. No country — no «Місто».
+ * - Місто: focus opens the favourites (cities[].popular); search from the 3rd character («Для пошуку введіть мінімум
+ *   3 символи» in the empty field); nothing found — the list hides; leaving the field keeps the text as a custom city.
+ * Matching — the start of any word («біла» / «церк»), names starting with the query go first.
+ * Cities are known only for Україна; for another country «Місто» is a plain input.
+ */
+const CITY_MIN_CHARS = 3;
+const countryQuery = ref('');
+const cityQuery = ref('');
+const norm = (s: string) => s.toLowerCase().replace(/[’ʼ'`]/g, '').trim();
+function search(list: string[], q: string): string[] {
+  const n = norm(q);
+  return list
+    .filter((x) => norm(x).split(/[\s-]+/).some((w) => w.startsWith(n)) || norm(x).startsWith(n))
+    .sort((a, b) => Number(norm(b).startsWith(n)) - Number(norm(a).startsWith(n)));
+}
+/** Nothing typed — the favourites; a chosen country outside them goes first (as /checkout-mobile). */
+const countryList = computed(() => {
+  if (countryQuery.value.trim()) return search(countries, countryQuery.value);
+  return f.country && !popularCountries.includes(f.country) ? [f.country, ...popularCountries] : popularCountries;
+});
+const cityList = computed(() =>
+  cityQuery.value.trim().length >= CITY_MIN_CHARS
+    ? search(cities.map((c) => c.name), cityQuery.value)
+    : cities.filter((c) => c.popular).map((c) => c.name),
+);
+const cityKnown = computed(() => f.country === 'Україна');
+
+function pickCountry(name: string) {
+  if (name !== f.country) f.city = '';
+  f.country = name;
+  open.value.country = false;
+}
+function pickFirstCountry() {
+  if (countryQuery.value.trim() && countryList.value.length) pickCountry(countryList.value[0]);
+}
+/** Custom city (text left in the field) or the cleared field — the list state is the Select's business. */
+function setCity(c: string) {
+  f.city = c;
+  clearError('city');
+}
+function pickFirstCity() {
+  if (cityList.value.length) pickCity(cityList.value[0]);
+}
 
 /*
  * Dependencies between delivery and payment (/checkout-v2 only):
@@ -100,16 +149,56 @@ function showMap() {
     <section class="form__section">
       <SectionTitle class="form__head" size="m" title="Доставка" :show-action="false" />
       <div class="form__items">
-        <Input v-model="f.country" size="l" :label-position="labels" label="Країна" placeholder="Країна" />
+        <!-- Країна: search right in the field. -->
+        <Select
+          v-model:show-list="open.country"
+          v-model:query="countryQuery"
+          searchable
+          class="form__list"
+          size="l"
+          :label-position="labels"
+          label="Країна"
+          :model-value="f.country"
+          placeholder="Введіть назву своєї країни"
+          :list-empty="!countryList.length"
+          @enter="pickFirstCountry"
+          @clear="f.country = ''; f.city = ''"
+        >
+          <template #list>
+            <SelectRichOption v-for="c in countryList" :key="c" :title="c" sub="" :checked="c === f.country" @click="pickCountry(c)" />
+          </template>
+        </Select>
+        <p class="form__indent form__example ds-text-special-special-12-regular">
+          Наприклад, <button type="button" class="form__example-link" @click="pickCountry('Україна')">Україна</button>
+        </p>
         <!-- Figma: Select Size=M (32) next to L inputs — taken as a mock slip, L (40) as the other fields. -->
-        <div>
-          <!-- The list in the same style as delivery / payment: rows with the tick on the selected one. -->
-          <Select v-model:show-list="open.city" class="form__list" size="l" :label-position="labels" label="Місто" :placeholder="f.city || 'Оберіть місто'">
+        <div v-if="cityKnown">
+          <!-- Search right in the field; nothing typed — the popular cities. -->
+          <Select
+            v-model:show-list="open.city"
+            v-model:query="cityQuery"
+            searchable
+            class="form__list"
+            size="l"
+            :label-position="labels"
+            label="Місто"
+            :model-value="f.city"
+            placeholder="Назва міста"
+            search-placeholder="Для пошуку введіть мінімум 3 символи"
+            allow-custom
+            :list-empty="!cityList.length"
+            @update:model-value="setCity"
+            @enter="pickFirstCity"
+            @clear="f.city = ''"
+          >
             <template #list>
-              <SelectRichOption v-for="c in cityOptions" :key="c" :title="c" sub="" :checked="c === f.city" @click="pickCity(c)" />
+              <SelectRichOption v-for="c in cityList" :key="c" :title="c" sub="" :checked="c === f.city" @click="pickCity(c)" />
             </template>
           </Select>
           <p v-if="e.city" class="form__indent form__error ds-text-special-special-12-regular">{{ e.city }}</p>
+        </div>
+        <div v-else-if="f.country">
+          <Input v-model="f.city" size="l" :label-position="labels" label="Місто" placeholder="Місто" :error="!!e.city" :hint="e.city" @focusout="validateField('city')" />
         </div>
         <Select
           v-if="!deliveryStatic"
@@ -248,6 +337,21 @@ function showMap() {
 .form__list :deep(.ds-input-main__menu) {
   padding: 0;
   overflow-x: hidden;
+}
+/* «Наприклад, Україна» under the country (reference): a quiet hint, the country is a dotted pseudo-link. */
+.form__example {
+  margin: calc(-1 * var(--space-12)) 0 0;
+  color: var(--text-secondary);
+}
+.form__example-link {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: var(--stroke-thin) dashed currentColor;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
 }
 .form__address {
   display: flex;

@@ -77,6 +77,76 @@ export const deliveryOptions: { id: DeliveryId; label: string; name: string; sub
 ];
 /** City list for the «Місто» select (/checkout-v2; Figma: Select in the «Доставка» section). */
 export const cityOptions = ['Київ', 'Львів', 'Одеса', 'Харків', 'Дніпро', 'Запоріжжя', 'Вінниця'];
+
+/** Favourite countries — shown in «Країна» before typing (/checkout-v2; same five as /checkout-mobile). */
+export const popularCountries = ['Україна', 'Польща', 'Молдова', 'Німеччина', 'Чехія'];
+
+/** Countries for the searchable «Країна» select (/checkout-v2). Cities are known only for Україна. */
+export const countries: string[] = [
+  'Україна',
+  'Польща',
+  'Молдова',
+  'Румунія',
+  'Словаччина',
+  'Угорщина',
+  'Чехія',
+  'Німеччина',
+  'Австрія',
+  'Литва',
+  'Латвія',
+  'Естонія',
+  'Італія',
+  'Іспанія',
+  'Франція',
+  'Нідерланди',
+  'Велика Британія',
+  'США',
+  'Канада',
+];
+
+/**
+ * Cities of Україна for the searchable «Місто» select (/checkout-v2). `popular` — shown while nothing is typed
+ * (in this order); typing searches the whole list.
+ */
+export const cities: { name: string; popular?: boolean }[] = [
+  // Favourites as in the reference shop (briefs/checkout/reference_country_city.md), in this order.
+  { name: 'Київ', popular: true },
+  { name: 'Харків', popular: true },
+  { name: 'Дніпро', popular: true },
+  { name: 'Одеса', popular: true },
+  { name: 'Львів', popular: true },
+  { name: 'Запоріжжя' },
+  { name: 'Вінниця' },
+  { name: 'Біла Церква' },
+  { name: 'Бориспіль' },
+  { name: 'Бровари' },
+  { name: 'Ірпінь' },
+  { name: 'Буча' },
+  { name: 'Житомир' },
+  { name: 'Чернігів' },
+  { name: 'Черкаси' },
+  { name: 'Чернівці' },
+  { name: 'Полтава' },
+  { name: 'Кременчук' },
+  { name: 'Суми' },
+  { name: 'Миколаїв' },
+  { name: 'Херсон' },
+  { name: 'Кривий Ріг' },
+  { name: 'Кам’янське' },
+  { name: 'Кропивницький' },
+  { name: 'Хмельницький' },
+  { name: 'Кам’янець-Подільський' },
+  { name: 'Рівне' },
+  { name: 'Луцьк' },
+  { name: 'Тернопіль' },
+  { name: 'Івано-Франківськ' },
+  { name: 'Ужгород' },
+  { name: 'Мукачево' },
+  { name: 'Дрогобич' },
+  { name: 'Трускавець' },
+  { name: 'Ізмаїл' },
+  { name: 'Умань' },
+];
 /** Payment options. `sub` — the second line of the rich select on /checkout-v2 (terms the buyer may not expect). */
 // `icon` — the leading icon of the payment select (/checkout-v2): a placeholder for cards / cash, the monobank paw for installments.
 export const paymentOptions: { id: PaymentId; label: string; sub: string; icon: string }[] = [
@@ -448,7 +518,7 @@ function snapshot(kind: 'order' | 'quick') {
     phone: f.phone,
     email: f.email,
     // With a patronymic — the full Ukrainian order «Прізвище Ім'я По батькові»; without — as before («Ім'я Прізвище»).
-    recipient: (f.showPatronymic && f.patronymic.trim()
+    recipient: (f.patronymic.trim()
       ? `${f.lastName} ${f.firstName} ${f.patronymic}`
       : `${f.firstName} ${f.lastName}`).trim(),
     delivery:

@@ -1,8 +1,26 @@
 <script setup lang="ts">
 // Screens index (directive_screens_vue, Phase 5): tiles are built from the registry — nothing is hardcoded here.
-import { RouterLink } from 'vue-router';
+// Two tabs — «Десктоп» / «Мобільна версія» (registry field platform); the tab lives in the URL (?v=mobile), so
+// «back» from a screen returns to the same tab.
+import { computed } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { screens } from './registry';
 import Icon from '../components/Icon/Icon.vue';
+import Tabs from '../components/Tabs/Tabs.vue';
+
+type Platform = 'desktop' | 'mobile';
+const route = useRoute();
+const router = useRouter();
+const platform = computed<Platform>(() => (route.query.v === 'mobile' ? 'mobile' : 'desktop'));
+const ofPlatform = (p: Platform) => screens.filter((s) => (s.platform ?? 'desktop') === p);
+const tabs = computed(() => [
+  { value: 'desktop', label: `Десктоп · ${ofPlatform('desktop').length}` },
+  { value: 'mobile', label: `Мобільна версія · ${ofPlatform('mobile').length}` },
+]);
+const shown = computed(() => ofPlatform(platform.value));
+function setPlatform(v: string) {
+  router.replace({ query: v === 'mobile' ? { v } : {} });
+}
 
 // Pages: Storybook is built into /storybook/ next to the app. Dev: it runs as its own server (npm run storybook, 6006).
 const storybookUrl = import.meta.env.DEV ? 'http://localhost:6006/' : import.meta.env.BASE_URL + 'storybook/';
@@ -17,8 +35,10 @@ const storybookUrl = import.meta.env.DEV ? 'http://localhost:6006/' : import.met
       </p>
     </header>
 
-    <div class="index__grid">
-      <RouterLink v-for="s in screens" :key="s.id" :to="s.route" class="tile">
+    <Tabs :items="tabs" :model-value="platform" aria-label="Версія" @update:model-value="setPlatform" />
+
+    <div class="index__grid" role="tabpanel">
+      <RouterLink v-for="s in shown" :key="s.id" :to="s.route" class="tile">
         <span class="tile__name ds-text-heading-h4">{{ s.name }}</span>
         <span class="tile__desc ds-text-paragraph-p1">{{ s.description }}</span>
         <span class="tile__meta">

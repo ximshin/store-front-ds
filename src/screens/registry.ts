@@ -15,6 +15,8 @@ export interface ScreenEntry {
   component: () => Promise<Component>;
   /** Props for the screen component — the same screen in another configuration (e.g. a shop setting off). */
   props?: Record<string, unknown>;
+  /** Index tab: «Десктоп» (default) or «Мобільна версія». */
+  platform?: 'desktop' | 'mobile';
 }
 
 export const screens: ScreenEntry[] = [
@@ -97,6 +99,25 @@ export const screens: ScreenEntry[] = [
     figma: 'Checkout Tabs — Desktop · 6355:10633 (налаштування: швидке замовлення вимкнене)',
     component: () => import('./checkout/CheckoutScreen.vue'),
     props: { quickOrder: false },
+  },
+  {
+    id: 'checkout-mobile',
+    name: 'Оформлення · мобільне',
+    description: 'Мобільне оформлення: структура й логіка — як у поточному мобільному чекауті магазину, кольори — з десктопного v2. «Вхід для клієнтів», перемикач «Детальне | Замовити швидко» з десктопу v2 (48, підписи переносяться); поля розкладені як на десктопі: прізвище, імʼя, по батькові за кнопкою, телефон, е-пошта; доставка — країна → місто (нижні шторки з пошуком), спосіб, відділення й мапа; оплата; коментар окремим блоком; спосіб доставки й оплата відкриваються після вибору міста; кнопка активна після згоди з умовами. Замовлення — до форми, під «Вхід для клієнтів»: підсумок як на десктопі v2 (поле промокоду 48 і «Ок», без чипів — код видно рядком знижки), далі товари з лічильником, що згортаються в рядок фото, коли товарів більше двох.',
+    route: '/checkout-mobile',
+    figma: '— (ще немає; референс — shop349369.horoshop.ua/checkout/?v=mobile)',
+    component: () => import('./checkout-mobile/CheckoutMobileScreen.vue'),
+    platform: 'mobile',
+  },
+  {
+    id: 'checkout-mobile-items',
+    name: 'Оформлення · мобільне, товари як у новому кошику',
+    description: 'Той самий мобільний екран, але рядки товарів — як у новому мобільному кошику магазину: фото 64, назва (основний чорний, як на десктопі), ціна й закреслена стара ціна ліворуч, сума жирним праворуч, під ними лічильник і видалення. Комплект «Разом дешевше»: заголовок над першим товаром, другий товар — фото 44 з відступом, ціна комплекту й стара ціна, сума, лічильник. З десктопу: мітка smart-знижки, мінімальне замовлення, електронний товар, оптові ціни кнопками, подарунок під товаром.',
+    route: '/checkout-mobile-items',
+    figma: '— (референс — new-cart.lb.stage.horoshop.ua/checkout/?v=mobile)',
+    component: () => import('./checkout-mobile/CheckoutMobileScreen.vue'),
+    props: { itemsLook: 'ref' },
+    platform: 'mobile',
   },
   {
     id: 'checkout-login',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Local block of /checkout-v2: the recipient fields — shared by the full form and the quick order
 // (the quick order is a shortened full form). Figma 1:1048 «form-section» Одержувач:
-// name row + «Додати по батькові» (the field takes one column, as «Прізвище»), phone / e-mail,
+// name row Прізвище · Ім'я · По батькові (patronymic always shown — was «Додати по батькові»), phone / e-mail,
 // «Додати коментар до замовлення» with comment-stroke (Figma 1:1137).
 import { nextTick, ref } from 'vue';
 import { Input, ButtonFront, Icon } from '../../../main';
@@ -13,15 +13,8 @@ withDefaults(defineProps<{ labels?: 'top' | 'left'; comment?: boolean }>(), { la
 
 const f = checkout.form;
 const e = checkout.errors;
-const patronymicEl = ref<HTMLElement | null>(null);
 const commentEl = ref<HTMLElement | null>(null);
 
-async function togglePatronymic() {
-  f.showPatronymic = !f.showPatronymic;
-  if (!f.showPatronymic) return (f.patronymic = '');
-  await nextTick();
-  patronymicEl.value?.querySelector('input')?.focus();
-}
 async function toggleComment() {
   f.showComment = !f.showComment;
   if (!f.showComment) return;
@@ -33,20 +26,11 @@ async function toggleComment() {
 <template>
   <div class="rf" :class="{ 'rf--left': labels === 'left' }">
     <div class="rf__items">
-      <!-- Figma inline-inputs 1:1071: the name row, then «Додати по батькові» (gap 8). -->
-      <div class="rf__group">
-        <div class="rf__row">
-          <Input :label-position="labels" v-model="f.lastName" size="l" label="Прізвище" placeholder="Прізвище" :error="!!e.lastName" :hint="e.lastName" @focusout="validateField('lastName')" />
-          <Input :label-position="labels" v-model="f.firstName" size="l" label="Ім'я" placeholder="Ім'я" :error="!!e.firstName" :hint="e.firstName" @focusout="validateField('firstName')" />
-        </div>
-        <!-- The patronymic is one column wide, under «Прізвище». -->
-        <div v-if="f.showPatronymic" ref="patronymicEl" class="rf__row rf__patronymic">
-          <Input :label-position="labels" v-model="f.patronymic" size="l" label="По батькові" placeholder="По батькові" clearable />
-          <span class="rf__spacer" aria-hidden="true" />
-        </div>
-        <div class="rf__link form__indent">
-          <ButtonFront type="flat" size="m" :label="f.showPatronymic ? 'Прибрати по батькові' : 'Додати по батькові'" @click="togglePatronymic" />
-        </div>
+      <!-- Name row: Прізвище · Ім'я · По батькові — the patronymic is always shown, in one row (experiment). -->
+      <div class="rf__row">
+        <Input :label-position="labels" v-model="f.lastName" size="l" label="Прізвище" placeholder="Прізвище" :error="!!e.lastName" :hint="e.lastName" @focusout="validateField('lastName')" />
+        <Input :label-position="labels" v-model="f.firstName" size="l" label="Ім'я" placeholder="Ім'я" :error="!!e.firstName" :hint="e.firstName" @focusout="validateField('firstName')" />
+        <Input :label-position="labels" v-model="f.patronymic" size="l" label="По батькові" placeholder="По батькові" />
       </div>
       <div class="rf__row">
         <Input :label-position="labels" v-model="f.phone" size="l" type="tel" label="Телефон" placeholder="+38 (0XX) XXX-XX-XX" :error="!!e.phone" :hint="e.phone" @focusout="validateField('phone')" />
@@ -89,19 +73,9 @@ async function toggleComment() {
   gap: var(--space-16);
   padding-bottom: var(--space-8);
 }
-.rf__group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
 .rf__row {
   display: flex;
   gap: var(--space-8);
-}
-/* The patronymic sits inside the name group (gap 8 to the link under it), but from the name row it needs the
-   common field gap 16: 8 of the group + 8 here. */
-.rf__patronymic {
-  margin-top: var(--space-8);
 }
 .rf__row > * {
   flex: 1 1 0;
@@ -117,9 +91,6 @@ async function toggleComment() {
   .rf__row {
     flex-direction: column;
     align-items: stretch;
-  }
-  .rf__spacer {
-    display: none;
   }
 }
 </style>

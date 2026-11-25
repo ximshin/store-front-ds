@@ -1,0 +1,108 @@
+/* Shared controls of /checkout-mobile (scoped by the screen root .cm).
+   Sizes — from the shop's current mobile checkout (field / button 48, field and button radius 8 (2026-11-24, Figma Checkout-v2 107:6823; the reference had 16 on fields),
+   field text 18, label 14); colours — DS semantic tokens, as /checkout-v2. */
+.cm .m-label {
+  display: block;
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+  font-size: var(--font-size-14);
+  line-height: var(--font-line-height-20);
+}
+.cm .m-field {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--space-48);
+  padding: 0 var(--space-12);
+  border: var(--stroke-thin) solid var(--border-input);
+  border-radius: var(--radius-8);
+  background: var(--surface-default);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-18);
+  line-height: var(--font-line-height-24);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.cm .m-field::placeholder {
+  color: var(--text-input-hint);
+}
+.cm .m-field:hover:not(:disabled) {
+  border-color: var(--border-input-hover);
+}
+/* Focus as desktop InputMain: 2 px = 1 px border + inset 1 px, border/input-active; no outline (2026-11-24). */
+.cm .m-field:focus-visible,
+.cm .m-field:focus {
+  border-color: var(--border-input-active);
+  box-shadow: inset 0 0 0 var(--stroke-thin) var(--border-input-active);
+}
+.cm .m-field:disabled {
+  border-color: var(--border-disabled);
+  background: var(--surface-input-disabled);
+  color: var(--text-disabled);
+  cursor: default;
+}
+.cm textarea.m-field {
+  min-height: 96px;
+  padding: var(--space-12);
+  resize: vertical;
+}
+.cm .ss--error .m-field,
+.cm .m-field.is-error {
+  border-color: var(--border-danger);
+}
+.cm .m-error {
+  margin: var(--space-4) 0 0;
+  color: var(--text-danger);
+  font-size: var(--font-size-13);
+  line-height: var(--font-line-height-16);
+}
+.cm .ss--disabled .m-label,
+.cm .is-locked .m-label {
+  color: var(--text-disabled);
+}
+
+/* Buttons: 48, radius 8. Outline — the secondary look of the reference, primary — DS action colour. */
+.cm .m-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  box-sizing: border-box;
+  min-height: var(--space-48);
+  padding: 0 var(--space-12);
+  border: var(--stroke-thin) solid var(--border-input);
+  border-radius: var(--radius-8);
+  background: var(--surface-default);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-18);
+  line-height: var(--font-line-height-24);
+  text-decoration: none;
+  cursor: pointer;
+}
+.cm .m-btn--block {
+  display: flex;
+  width: 100%;
+}
+.cm .m-btn--small {
+  min-height: var(--space-40);
+  font-size: var(--font-size-16);
+}
+.cm .m-btn--primary {
+  border-color: transparent;
+  background: var(--surface-action-primary);
+  color: var(--text-primary-white);
+}
+.cm .m-btn--primary:hover:not(:disabled) {
+  background: var(--surface-action-primary-hover);
+}
+.cm .m-btn:disabled {
+  border-color: transparent;
+  background: var(--surface-disabled);
+  color: var(--text-disabled);
+  cursor: default;
+}
+/* Buttons: no focus outline, as desktop ButtonFront (.ds-button:focus-visible { outline: none }). */
+.cm .m-btn:focus-visible {
+  outline: none;
+}

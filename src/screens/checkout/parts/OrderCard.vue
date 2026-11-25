@@ -17,10 +17,16 @@ import {
 // card with its own title «Ваше замовлення · N товарів» and the list. Same DOM, arranged by CSS (order + borders).
 // promoAlways (/checkout-v2-comment, with split): no chips row and no «Додати код» — the promo field is always shown;
 // an applied code is seen only as its discount line in the totals (removable there, Figma 1:1172).
-const props = withDefaults(defineProps<{ scrollHint?: boolean; split?: boolean; promoAlways?: boolean }>(), {
+// summaryOnly (/checkout-mobile, with split): only the summary card (promo, warning, totals) — the screen shows the
+// items itself; an empty cart renders nothing here.
+// promoLook 'mobile' (/checkout-mobile): the promo field and its button are the mobile controls (m-field 48 / radius 16,
+// m-btn 48 «Ок» from checkout-mobile/parts/mobile.css, applied under the screen root .cm); logic unchanged.
+const props = withDefaults(defineProps<{ scrollHint?: boolean; split?: boolean; promoAlways?: boolean; summaryOnly?: boolean; promoLook?: 'ds' | 'mobile' }>(), {
   scrollHint: false,
   split: false,
   promoAlways: false,
+  summaryOnly: false,
+  promoLook: 'ds',
 });
 
 const router = useRouter();
@@ -83,8 +89,12 @@ function onFormFocusOut(e: FocusEvent) {
 </script>
 
 <template>
-  <div class="order" :class="{ 'order--split': split, 'is-empty': isEmpty }">
-    <div class="order__title" :class="{ 'is-scrolled': split && scrolled }">
+  <div
+    v-if="!(summaryOnly && isEmpty)"
+    class="order"
+    :class="{ 'order--split': split, 'order--mobile': promoLook === 'mobile', 'is-empty': isEmpty }"
+  >
+    <div v-if="!summaryOnly" class="order__title" :class="{ 'is-scrolled': split && scrolled }">
       <SectionTitle size="m" :title="title" :show-action="false" />
     </div>
 
@@ -120,7 +130,25 @@ function onFormFocusOut(e: FocusEvent) {
         >
           <template #left><Icon name="cross-16" /></template>
         </ButtonFront>
+        <template v-if="promoLook === 'mobile'">
+          <div class="order__promo-input">
+            <input
+              v-model="checkout.promoInput"
+              class="m-field"
+              :class="{ 'is-error': !!checkout.promoError }"
+              type="text"
+              placeholder="Промокод або сертифікат"
+              aria-label="Промокод або подарунковий сертифікат"
+              autocapitalize="characters"
+              :aria-invalid="!!checkout.promoError || undefined"
+              @input="checkout.promoError = ''"
+            />
+            <p v-if="checkout.promoError" class="m-error">{{ checkout.promoError }}</p>
+          </div>
+          <button type="submit" class="m-btn m-btn--primary order__promo-ok">Ок</button>
+        </template>
         <Input
+          v-else
           v-model="checkout.promoInput"
           class="order__promo-input"
           :show-label="false"
@@ -130,7 +158,7 @@ function onFormFocusOut(e: FocusEvent) {
           :hint="checkout.promoError"
           @update:model-value="checkout.promoError = ''"
         />
-        <ButtonFront type="primary" size="m" native-type="submit" label="Застосувати" />
+        <ButtonFront v-if="promoLook !== 'mobile'" type="primary" size="m" native-type="submit" label="Застосувати" />
       </form>
       <div v-else-if="!split" class="order__promo">
         <div class="order__chips">
@@ -169,13 +197,14 @@ function onFormFocusOut(e: FocusEvent) {
             :label="d.label"
             :amount="money(-d.amount)"
             :removable="split"
+            :remove-look="promoLook === 'mobile' ? 'delete' : 'cross'"
             @remove="removePromo(d.label)"
           />
         </template>
       </OrderSummary>
     </div>
 
-    <div v-if="!isEmpty" class="order__list" :class="{ 'has-more': scrollHint && moreBelow }">
+    <div v-if="!isEmpty && !summaryOnly" class="order__list" :class="{ 'has-more': scrollHint && moreBelow }">
     <div ref="itemsEl" class="order__items" @scroll.passive="onItemsScroll">
       <template v-for="l in checkout.lines" :key="l.id">
         <CartItem
@@ -219,7 +248,7 @@ function onFormFocusOut(e: FocusEvent) {
     </div>
     </div>
 
-    <div v-else class="order__empty">
+    <div v-else-if="!summaryOnly" class="order__empty">
       <EmptyState type="cart" action="Повернутись до покупок" @action="router.push('/')" />
     </div>
   </div>
@@ -332,6 +361,9 @@ function onFormFocusOut(e: FocusEvent) {
   flex: 1 1 0;
   min-width: 0;
 }
+.order__promo-ok {
+  flex: none;
+}
 /* OrderSummary inside the card: no own frame (as in the mockup). */
 .order__summary :deep(.ds-order-summary) {
   border: 0;
@@ -420,6 +452,31 @@ function onFormFocusOut(e: FocusEvent) {
   border-bottom: var(--stroke-thin) solid var(--border-card);
   pointer-events: none;
 }
+/*
+ * promoLook 'mobile' (/checkout-mobile, Figma Checkout-v2 summary 107:6823): the card pads 16 (8 at the bottom — the
+ * last 40 row already has air), blocks (promo · warning · totals) 16 apart; the totals rows are 40 high with no gap
+ * between them; «Загальна сума» regular 14. The discount is removed by a 40 button with delete-24 (DiscountLine removeLook).
+ */
+.order--mobile .order__summary {
+  padding: var(--space-16) var(--space-16) var(--space-8);
+}
+.order--mobile .order__promo-form,
+.order--mobile .order__warning {
+  padding: 0;
+}
+.order--mobile .order__summary :deep(.ds-order-summary) {
+  gap: 0;
+  padding: 0;
+}
+.order--mobile .order__summary :deep(.ds-order-summary__row),
+.order--mobile .order__summary :deep(.ds-discount-line),
+.order--mobile .order__summary :deep(.ds-order-summary__total) {
+  min-height: var(--space-40);
+}
+.order--mobile .order__summary :deep(.ds-order-summary__total-label) {
+  font: var(--typo-paragraph-p1);
+}
+
 /* Figma 1:1167: the promo field sits 8 under the promo row (the summary itself keeps 16 between blocks). */
 .order--split .order__promo + .order__promo-form {
   margin-top: calc(var(--space-8) - var(--space-16));

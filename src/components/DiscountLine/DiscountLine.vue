@@ -6,15 +6,21 @@
  *
  * Figma → props: Label → label, Amount → amount; иконка — prop `icon` (по умолчанию coupon-16, icon/primary);
  * крестик remove (6464:4072) — prop `removable` + событие `remove` (снять промокод прямо из итогов).
+ * `removeLook` 'delete' (мобильный чекаут, Figma Checkout-v2 summary 107:6823): вместо крестика — кнопка 40 (px 8)
+ * с корзиной delete-24 (icon/primary).
  */
 import Icon from '../Icon/Icon.vue';
 
-const props = withDefaults(defineProps<{ label?: string; amount?: string; icon?: string; removable?: boolean }>(), {
-  label: 'Накопичувальна знижка',
-  amount: '−20 грн',
-  icon: 'coupon-16',
-  removable: false,
-});
+const props = withDefaults(
+  defineProps<{ label?: string; amount?: string; icon?: string; removable?: boolean; removeLook?: 'cross' | 'delete' }>(),
+  {
+    label: 'Накопичувальна знижка',
+    amount: '−20 грн',
+    icon: 'coupon-16',
+    removable: false,
+    removeLook: 'cross',
+  },
+);
 const emit = defineEmits<{ remove: [] }>();
 </script>
 
@@ -27,10 +33,12 @@ const emit = defineEmits<{ remove: [] }>();
         v-if="props.removable"
         type="button"
         class="ds-discount-line__remove"
+        :class="{ 'ds-discount-line__remove--delete': removeLook === 'delete' }"
         :aria-label="`Видалити знижку ${label}`"
         @click="emit('remove')"
       >
-        <Icon name="cross-16" />
+        <Icon v-if="removeLook === 'delete'" name="delete-24" :size="24" />
+        <Icon v-else name="cross-16" />
       </button>
     </span>
     <span class="ds-discount-line__amount">{{ amount }}</span>
@@ -68,6 +76,18 @@ const emit = defineEmits<{ remove: [] }>();
   background: none;
   color: var(--icon-secondary);
   cursor: pointer;
+}
+/* Figma 107:6823: button 40 high, px 8, radius 8, delete 24 in icon/primary. */
+.ds-discount-line__remove--delete {
+  align-items: center;
+  justify-content: center;
+  height: var(--space-40);
+  padding: 0 var(--space-8);
+  border-radius: var(--radius-8);
+  color: var(--icon-primary);
+}
+.ds-discount-line__remove--delete:hover {
+  background: var(--surface-hover);
 }
 .ds-discount-line__remove:hover {
   color: var(--icon-primary);
