@@ -30,3 +30,8 @@ storybook-static
 .env
 .env.*
 .tmp
+
+# Chromatic run artifacts
+chromatic-diagnostics.json
+chromatic*.log
+build-storybook.log

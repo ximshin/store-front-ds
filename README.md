@@ -26,6 +26,30 @@ npm run build       # проверка типов + сборка
 | `npm run build-storybook` | Статическая сборка в `storybook-static/` |
 | `node scripts/screenshot.mjs <story-id>…` | Скриншоты stories из статической сборки в `../.tmp/screens/` — сверка с Figma |
 | `npx vue-tsc -b` | Проверка типов (её же запускает хук после правок `src/`) |
+| `npm run chromatic` | Публикует Storybook в Chromatic и запускает визуальные тесты stories (токен — из `../.env`, см. «Chromatic») |
+
+## Chromatic
+
+Визуальные тесты stories и опубликованный Storybook со ссылкой на каждую сборку (chromatic.com).
+
+**Подключение (один раз, вручную):**
+1. Войти на chromatic.com через GitHub → «Add project» → репозиторий `ximshin/store-front-ds`.
+2. Скопировать project token (`chpt_…`; Manage → Configure).
+3. Локально: строка `CHROMATIC_PROJECT_TOKEN=chpt_…` в `D:/Agents/Store Front/.env` (или `storybook/.env`; оба в .gitignore).
+4. Для CI: GitHub → репозиторий → Settings → Secrets and variables → Actions → New repository secret
+   `CHROMATIC_PROJECT_TOKEN` с тем же значением.
+5. Первый запуск — `npm run chromatic`: первая сборка снимает все stories и становится эталоном (сделано 2026-11-25,
+   build 1 принят автоматически). Storybook проекта: https://6b068ef8a17af72f17b7a660-gcjgkynlhl.chromatic.com/
+
+**Как работает:**
+- `.github/workflows/chromatic.yml` — на каждый PR и вручную (Actions → Chromatic → Run workflow); на пуш в main не запускается —
+  экономия лимита снимков. Без секрета job пропускается (notice в логе).
+- `chromatic.config.json`: сборка `build-storybook`; `onlyChanged` (TurboSnap) — снимаются только stories, которых коснулись
+  изменения, **но Chromatic включает это только после 10 сборок из CI** — до тех пор каждая сборка снимает все stories
+  (на 2026-11-25 — 395 снимков); правка `src/tokens/**` или `src/styles/**` — пересъёмка всех; визуальные изменения
+  не валят CI (`exitZeroOnChanges`) — они ждут ревью в Chromatic (Accept — новый эталон, Deny — баг).
+- Под тестом только stories компонентов (`*.stories.ts`). Экраны (`src/screens`) — не stories, Chromatic их не видит.
+- Только часть stories: `npm run chromatic -- --only-story-names "Actions/button-front/*"`.
 
 ## Токены
 

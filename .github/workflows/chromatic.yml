@@ -1,0 +1,38 @@
+# Visual tests of the DS stories in Chromatic on every pull request and on demand (Actions → Chromatic → Run workflow).
+# Not on every push to main: until TurboSnap opens (10 CI builds) each build snapshots all stories (395) — the monthly
+# snapshot limit would run out fast.
+# Settings — chromatic.config.json (build-storybook, only changed stories, CI not failed by visual changes:
+# changes wait for review in Chromatic). Needs the repo secret CHROMATIC_PROJECT_TOKEN; without it the job is skipped.
+name: Chromatic
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+    env:
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+    steps:
+      - name: Skip without a token
+        if: env.CHROMATIC_PROJECT_TOKEN == ''
+        run: echo "::notice::CHROMATIC_PROJECT_TOKEN is not set in repo secrets — Chromatic skipped."
+      - uses: actions/checkout@v4
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        with:
+          fetch-depth: 0 # Chromatic needs the git history for baselines and onlyChanged (TurboSnap)
+      - uses: actions/setup-node@v4
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        with:
+          node-version: 24
+          cache: npm
+      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+        run: npm ci
+      - name: Publish Storybook and run visual tests
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        run: npx chromatic --project-token="$CHROMATIC_PROJECT_TOKEN"

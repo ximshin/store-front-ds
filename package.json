@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "tokens": "node scripts/build-tokens.mjs"
+    "tokens": "node scripts/build-tokens.mjs",
+    "chromatic": "node scripts/chromatic.mjs"
   },
   "dependencies": {
     "vue": "^3.5.42",
@@ -25,6 +26,7 @@
     "@vitest/browser-playwright": "latest",
     "@vitest/coverage-v8": "latest",
     "@vue/tsconfig": "^0.9.1",
+    "chromatic": "^18.15.3",
     "playwright": "latest",
     "storybook": "^10.6.1",
     "style-dictionary": "^4.4.0",
