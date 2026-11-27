@@ -273,11 +273,14 @@ function initialForm() {
     branch: '',
     courierAddress: '',
     payment: 'card' as PaymentId,
+    /** false — the buyer has not chosen yet (empty form, /checkout-v2-steps): the select shows «Оберіть…». */
+    deliveryPicked: true,
+    paymentPicked: true,
     newsletter: false,
     terms: true,
   };
 }
-type FormField = keyof ReturnType<typeof initialForm>;
+export type FormField = keyof ReturnType<typeof initialForm>;
 
 // ---------- store ----------
 export const checkout = reactive({
@@ -451,12 +454,14 @@ export function closePromoInput(): void {
 // ---------- delivery / payment ----------
 export function setDelivery(id: DeliveryId): void {
   checkout.form.delivery = id;
+  checkout.form.deliveryPicked = true;
   checkout.form.branch = '';
   delete checkout.errors.branch;
   delete checkout.errors.courierAddress;
 }
 export function setPayment(id: PaymentId): void {
   checkout.form.payment = id;
+  checkout.form.paymentPicked = true;
 }
 
 // ---------- validation ----------
@@ -475,10 +480,14 @@ function fieldError(field: FormField): string {
       return v.required(f.city, 'Вкажіть місто');
     case 'comment':
       return v.maxLength(f.comment, 500);
+    case 'deliveryPicked':
+      return f.deliveryPicked ? '' : 'Оберіть спосіб доставки';
+    case 'paymentPicked':
+      return f.paymentPicked ? '' : 'Оберіть спосіб оплати';
     case 'branch':
-      return deliveryOption.value.branches ? v.required(f.branch, 'Оберіть відділення') : '';
+      return !f.deliveryPicked ? '' : deliveryOption.value.branches ? v.required(f.branch, 'Оберіть відділення') : '';
     case 'courierAddress':
-      return checkout.form.delivery === 'courier' ? v.required(f.courierAddress, 'Вкажіть адресу доставки') : '';
+      return f.deliveryPicked && checkout.form.delivery === 'courier' ? v.required(f.courierAddress, 'Вкажіть адресу доставки') : '';
     default:
       return '';
   }
@@ -492,6 +501,10 @@ export function validateField(field: FormField): void {
 function validateAll(fields: FormField[]): boolean {
   fields.forEach(validateField);
   return fields.every((f) => !checkout.errors[f]);
+}
+/** Validate a group of fields (accordion step «Далі») — true when none has an error. */
+export function validateFields(fields: FormField[]): boolean {
+  return validateAll(fields);
 }
 export function clearError(field: FormField): void {
   delete checkout.errors[field];
@@ -544,7 +557,7 @@ function failsOnNetwork(): boolean {
 /** Full checkout. Returns true when the order is placed (caller navigates to the success screen). */
 export async function submitOrder(): Promise<boolean> {
   if (checkout.submitting || isEmpty.value) return false;
-  const fields: FormField[] = ['lastName', 'firstName', 'phone', 'email', 'city', 'branch', 'courierAddress', 'comment'];
+  const fields: FormField[] = ['lastName', 'firstName', 'phone', 'email', 'city', 'deliveryPicked', 'branch', 'courierAddress', 'paymentPicked', 'comment'];
   if (!validateAll(fields)) {
     showToast('error', 'Перевірте поля, позначені червоним');
     return false;
@@ -623,6 +636,16 @@ export function logout(): void {
 }
 
 /** Reset the whole scenario (after a placed order — «Оформити ще одне»). */
+/** Empty recipient and address fields (the buyer fills them in); country too (the buyer picks it first). Returns the previous
+ *  values so a screen can put them back when it leaves (other screens show the pre-filled mock). */
+export function clearFormFields(): Partial<typeof checkout.form> {
+  const f = checkout.form;
+  const prev = { lastName: f.lastName, firstName: f.firstName, patronymic: f.patronymic, phone: f.phone, email: f.email, country: f.country, city: f.city, deliveryPicked: f.deliveryPicked, paymentPicked: f.paymentPicked, branch: f.branch, courierAddress: f.courierAddress, comment: f.comment };
+  Object.assign(f, { lastName: '', firstName: '', patronymic: '', phone: '', email: '', country: '', city: '', deliveryPicked: false, paymentPicked: false, branch: '', courierAddress: '', comment: '' });
+  clearErrors();
+  return prev;
+}
+
 export function resetCheckout(): void {
   Object.assign(checkout, {
     mode: 'full',

@@ -6,9 +6,10 @@
 import './parts/mobile.css';
 import { computed, nextTick, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ButtonFront, Checkbox, Icon } from '../../main';
+import { Checkbox, Icon } from '../../main';
 import { deliveryOptions, paymentOptions, isEmpty } from '../../data/checkout';
 import { showToast } from '../../data/toast';
+import { usePhoneMask } from '../../data/phoneMask';
 import SheetSelect from './parts/SheetSelect.vue';
 import MobileOrder from './parts/MobileOrder.vue';
 import OrderCard from '../checkout/parts/OrderCard.vue';
@@ -18,11 +19,31 @@ import {
   pickCountry, pickCity, pickDelivery, pickPayment, pickBranch, validateField, submitMobile, type MobileMode,
 } from './parts/mobileForm';
 
-/** itemsLook 'ref' (/checkout-mobile-items): item rows laid out as the shop's new mobile cart (MobileOrder look="ref"). */
-withDefaults(defineProps<{ itemsLook?: 'desktop' | 'ref' }>(), { itemsLook: 'desktop' });
+/** itemsLook: 'ref' — /checkout-mobile (since 2026-11-25), item rows as the shop's new mobile cart; 'desktop' — /checkout-mobile-desktop-items (passed to MobileOrder look). */
+/** contactsFirst (/checkout-mobile-desktop-items): Телефон · Е-пошта before the name — as desktop /checkout-v2-comment. */
+/**
+ * layout (2026-11-25) — rhythm variants: only title sizes, spacing between sections and titles, dividers and neutral
+ * grouping backgrounds change; fields, selects, their labels and all colours stay as they are (colours are set per shop).
+ * 'airy' — large titles 32, lots of air; 'dense' — small caps titles 13, full-width lines between sections;
+ * 'cards' — each section a white card on surface/subtle; 'steps' — numbered sections with a line on the left.
+ */
+export type MobileLayout = 'base' | 'airy' | 'dense' | 'cards' | 'steps';
+const props = withDefaults(defineProps<{ itemsLook?: 'desktop' | 'ref'; contactsFirst?: boolean; layout?: MobileLayout }>(), {
+  itemsLook: 'desktop',
+  contactsFirst: false,
+  layout: 'base',
+});
+/** Recipient blocks in DOM order (so Tab follows the visual order). */
+const recipientOrder = computed(() => (props.contactsFirst ? ['contacts', 'name'] : ['name', 'contacts']));
 
 const router = useRouter();
 const e = mobile.errors;
+/** Phone mask «+38 (0XX) XXX-XX-XX» as you type (Baymard: localized input mask; data/phoneMask.ts). */
+const phoneMask = usePhoneMask(() => mobile.phone, (v) => (mobile.phone = v));
+function onPhoneBlur() {
+  phoneMask.onBlur();
+  validateField('phone');
+}
 const tabs: { value: MobileMode; label: string }[] = [
   { value: 'full', label: 'Детальне замовлення' },
   { value: 'quick', label: 'Замовити швидко' },
@@ -44,14 +65,7 @@ function onPayment(label: string) {
   const p = paymentOptions.find((o) => o.label === label);
   if (p) pickPayment(p.id);
 }
-const patronymicEl = ref<HTMLInputElement | null>(null);
 const commentEl = ref<HTMLTextAreaElement | null>(null);
-async function togglePatronymic() {
-  mobile.showPatronymic = !mobile.showPatronymic;
-  if (!mobile.showPatronymic) return (mobile.patronymic = '');
-  await nextTick();
-  patronymicEl.value?.focus();
-}
 async function openComment() {
   mobile.showComment = true;
   await nextTick();
@@ -66,7 +80,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="cm">
+  <div class="cm" :class="`cm--${layout}`">
     <header class="cm__header">
       <button type="button" class="cm__back" @click="router.push('/')">
         <Icon name="arrow-left-24" :size="24" />
@@ -99,43 +113,57 @@ async function onSubmit() {
       />
 
       <form class="cm__form" novalidate @submit.prevent="onSubmit">
-        <!-- Field layout — as the desktop /checkout-v2: Одержувач (Прізвище, Ім'я, «Додати по батькові», Телефон,
-             Е-пошта) → Доставка (Країна, Місто, спосіб, Відділення + «Обрати на мапі») → Оплата → коментар окремим
+        <!-- Field layout — as the desktop /checkout-v2: Одержувач (Прізвище, Ім'я, По батькові — always shown, Телефон,
+             Е-пошта; contactsFirst — Телефон, Е-пошта first) → Доставка (Країна, Місто, спосіб, Відділення + «Обрати на мапі») → Оплата → коментар окремим
              блоком → підтвердження. Quick order — the same recipient block, then the comment. -->
         <!-- ---------- Одержувач ---------- -->
         <section class="cm__section">
           <h2 class="cm__title">Одержувач замовлення</h2>
           <p v-if="mobile.mode === 'quick'" class="cm__lead">Менеджер зателефонує, уточнить доставку й оплату та оформить замовлення за вас.</p>
           <div class="cm__fields">
-            <div class="cm__group">
-              <div>
-                <label class="m-label" for="cm-last">Прізвище</label>
-                <input id="cm-last" v-model="mobile.lastName" class="m-field" :class="{ 'is-error': !!e.lastName }" type="text" autocomplete="family-name" placeholder="Прізвище" @blur="validateField('lastName')" />
-                <p v-if="e.lastName" class="m-error">{{ e.lastName }}</p>
-              </div>
-              <div class="cm__next">
-                <label class="m-label" for="cm-first">Ім'я</label>
-                <input id="cm-first" v-model="mobile.firstName" class="m-field" :class="{ 'is-error': !!e.firstName }" type="text" autocomplete="given-name" placeholder="Ім'я" @blur="validateField('firstName')" />
-                <p v-if="e.firstName" class="m-error">{{ e.firstName }}</p>
-              </div>
-              <div v-if="mobile.showPatronymic" class="cm__next">
-                <label class="m-label" for="cm-patronymic">По батькові</label>
-                <input id="cm-patronymic" ref="patronymicEl" v-model="mobile.patronymic" class="m-field" type="text" autocomplete="additional-name" placeholder="По батькові" />
-              </div>
-              <div class="cm__action">
-                <ButtonFront type="flat" size="m" :label="mobile.showPatronymic ? 'Прибрати по батькові' : 'Додати по батькові'" @click="togglePatronymic" />
-              </div>
-            </div>
-            <div>
-              <label class="m-label" for="cm-phone">Телефон</label>
-              <input id="cm-phone" v-model="mobile.phone" class="m-field" :class="{ 'is-error': !!e.phone }" type="tel" inputmode="tel" autocomplete="tel" placeholder="+38 (0XX) XXX-XX-XX" @blur="validateField('phone')" />
-              <p v-if="e.phone" class="m-error">{{ e.phone }}</p>
-            </div>
-            <div>
-              <label class="m-label" for="cm-email">Е-пошта</label>
-              <input id="cm-email" v-model="mobile.email" class="m-field" :class="{ 'is-error': !!e.email }" type="email" inputmode="email" autocomplete="email" placeholder="name@mail.com" @blur="validateField('email')" />
-              <p v-if="e.email" class="m-error">{{ e.email }}</p>
-            </div>
+            <template v-for="block in recipientOrder" :key="block">
+              <template v-if="block === 'name'">
+                <div>
+                  <label class="m-label" for="cm-last">Прізвище</label>
+                  <input id="cm-last" v-model="mobile.lastName" class="m-field" :class="{ 'is-error': !!e.lastName }" type="text" autocomplete="family-name" placeholder="Прізвище" @blur="validateField('lastName')" />
+                  <p v-if="e.lastName" class="m-error">{{ e.lastName }}</p>
+                </div>
+                <div>
+                  <label class="m-label" for="cm-first">Ім'я</label>
+                  <input id="cm-first" v-model="mobile.firstName" class="m-field" :class="{ 'is-error': !!e.firstName }" type="text" autocomplete="given-name" placeholder="Ім'я" @blur="validateField('firstName')" />
+                  <p v-if="e.firstName" class="m-error">{{ e.firstName }}</p>
+                </div>
+                <div>
+                  <label class="m-label" for="cm-patronymic">По батькові</label>
+                  <input id="cm-patronymic" v-model="mobile.patronymic" class="m-field" type="text" autocomplete="additional-name" placeholder="По батькові" />
+                </div>
+              </template>
+              <template v-else>
+                <div>
+                  <label class="m-label" for="cm-phone">Телефон</label>
+                  <input
+                    id="cm-phone"
+                    :value="mobile.phone"
+                    class="m-field"
+                    :class="{ 'is-error': !!e.phone }"
+                    type="tel"
+                    inputmode="tel"
+                    autocomplete="tel"
+                    placeholder="+38 (0XX) XXX-XX-XX"
+                    @focus="phoneMask.onFocus"
+                    @input="phoneMask.onInput"
+                    @paste="phoneMask.onPaste"
+                    @blur="onPhoneBlur"
+                  />
+                  <p v-if="e.phone" class="m-error">{{ e.phone }}</p>
+                </div>
+                <div>
+                  <label class="m-label" for="cm-email">Е-пошта</label>
+                  <input id="cm-email" v-model="mobile.email" class="m-field" :class="{ 'is-error': !!e.email }" type="email" inputmode="email" autocomplete="email" placeholder="name@mail.com" @blur="validateField('email')" />
+                  <p v-if="e.email" class="m-error">{{ e.email }}</p>
+                </div>
+              </template>
+            </template>
           </div>
         </section>
 
@@ -339,21 +367,6 @@ async function onSubmit() {
   flex-direction: column;
   gap: var(--space-16);
 }
-/* Name group as desktop RecipientFields: fields 16 apart, the «Додати по батькові» link 8 under them. */
-.cm__group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
-.cm__next {
-  margin-top: var(--space-8);
-}
-.cm__action {
-  display: flex;
-}
-.cm__action :deep(.ds-button) {
-  font: var(--typo-special-special-14-medium);
-}
 .cm__lead {
   margin: 0 0 var(--space-16);
   color: var(--text-secondary);
@@ -418,5 +431,164 @@ async function onSubmit() {
 .cm__footer-link {
   color: inherit;
   text-decoration: none;
+}
+
+/* ================= layout variants (2026-11-25) =================
+   Only rhythm: title sizes, space between titles / sections, dividers, neutral grouping backgrounds.
+   Fields, selects, their labels and every colour stay untouched (colours are configured per shop). */
+
+/* ---------- 1. airy: magazine rhythm — titles 32, a lot of air ---------- */
+.cm--airy .cm__form {
+  padding-top: var(--space-40);
+}
+.cm--airy .cm__section {
+  padding-bottom: var(--space-48);
+}
+.cm--airy .cm__title {
+  margin-bottom: var(--space-20);
+  font-size: var(--font-size-32);
+  line-height: var(--font-line-height-40);
+  letter-spacing: -0.01em;
+}
+.cm--airy .cm__order {
+  gap: var(--space-24);
+  margin: var(--space-24) 0 var(--space-32);
+}
+.cm--airy .cm__confirm {
+  gap: var(--space-20);
+}
+/* The order block follows the scale: total 24, items title 20. */
+.cm--airy :deep(.ds-order-summary__total .ds-price__value),
+.cm--airy :deep(.ds-order-summary__total .ds-price) {
+  font-size: var(--font-size-24);
+  line-height: var(--font-line-height-32);
+}
+.cm--airy :deep(.mo__head),
+.cm--airy :deep(.mm__text) {
+  font-size: var(--font-size-20);
+  line-height: var(--font-line-height-28);
+}
+
+/* ---------- 2. dense: a form sheet — small caps titles, full-width lines between sections ---------- */
+.cm--dense .cm__form {
+  padding-top: var(--space-16);
+}
+.cm--dense .cm__section {
+  /* the line runs edge to edge of the screen (bleeds through the 16 page padding) */
+  margin: 0 calc(-1 * var(--space-16));
+  padding: var(--space-24) var(--space-16);
+  border-top: var(--stroke-thin) solid var(--border-divider);
+}
+.cm--dense .cm__title {
+  margin-bottom: var(--space-12);
+  color: var(--text-secondary);
+  font-size: var(--font-size-13);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-height-16);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cm--dense .cm__fields {
+  gap: var(--space-12);
+}
+.cm--dense .cm__confirm {
+  margin: 0 calc(-1 * var(--space-16));
+  padding: var(--space-24) var(--space-16) 0;
+  border-top: var(--stroke-thin) solid var(--border-divider);
+}
+.cm--dense .cm__order {
+  gap: var(--space-12);
+  margin: var(--space-12) 0;
+}
+
+/* ---------- 3. cards: each section a white card on a neutral page tint (surface/subtle, not a shop colour) ---------- */
+.cm--cards,
+.cm--cards .cm__header {
+  background: linear-gradient(var(--surface-subtle), var(--surface-subtle)), var(--surface-default);
+}
+.cm--cards .cm__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-top: var(--space-16);
+}
+.cm--cards .cm__section,
+.cm--cards .cm__confirm {
+  padding: var(--space-20);
+  border-radius: var(--radius-16);
+  background: var(--surface-default);
+}
+.cm--cards .cm__title {
+  margin-bottom: var(--space-16);
+  font-size: var(--font-size-20);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-height-28);
+}
+.cm--cards .cm__order {
+  gap: var(--space-12);
+  margin: var(--space-12) 0;
+}
+/* Cards of the order block join the same language: no border, radius 16 (white on the tint). */
+.cm--cards :deep(.order--split .order__summary),
+.cm--cards :deep(.mo) {
+  border-color: transparent;
+  border-radius: var(--radius-16);
+}
+
+/* ---------- 4. steps: numbered sections, a line on the left joins them ---------- */
+.cm--steps .cm__form {
+  padding-top: var(--space-32);
+  counter-reset: cm-step;
+}
+.cm--steps .cm__section {
+  position: relative;
+  padding: 0 0 var(--space-32) var(--space-40);
+}
+/* Number circle 28 in the 40 gutter: outline + digit in text/primary (no fill — fills may be the shop colour). */
+.cm--steps .cm__title {
+  display: flex;
+  align-items: center;
+  min-height: var(--space-28);
+  margin-bottom: var(--space-16);
+  font-size: var(--font-size-20);
+  line-height: var(--font-line-height-28);
+  counter-increment: cm-step;
+}
+.cm--steps .cm__title::before {
+  content: counter(cm-step);
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-28);
+  height: var(--space-28);
+  border: 1.5px solid currentColor;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+/* The line: from under the circle down to the next section, centred on the circle (13.25 = (28 − 1.5) / 2). */
+.cm--steps .cm__section:has(> .cm__title)::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--space-28) + var(--space-4));
+  bottom: var(--space-4);
+  left: 13px;
+  border-left: 1.5px solid var(--border-divider);
+}
+/* No line under the last numbered section (Оплата in the full order, Одержувач in the quick one). */
+.cm--steps .cm__section:has(> .cm__title):not(:has(~ .cm__section > .cm__title))::before {
+  content: none;
+}
+.cm--steps .cm__confirm {
+  padding-left: var(--space-40);
+}
+/* The comment button sits in the 40-indented column (303 wide): text 15 keeps «icon + label» on one line. */
+.cm--steps .cm__comment-btn {
+  font-size: var(--font-size-15);
 }
 </style>

@@ -436,6 +436,10 @@ watch(qty, (v) => emit('update:quantity', v));
   flex: none;
   align-items: center;
 }
+/* The counter takes the row background (no white plate under it and «шт.») — the item may lie on a tinted surface. */
+.ci__counter-box :deep(.ds-counter) {
+  background: none;
+}
 /* Удаление (Compact) прижато в правый верхний угол: 4 / 4 от края (Figma 6422:27038, 6426:585) — ховер 40×40 не вылезает за карточку. */
 .ci__delete {
   position: absolute;
@@ -589,7 +593,8 @@ watch(qty, (v) => emit('update:quantity', v));
   padding: calc(var(--space-8) - var(--stroke-thin));
   border: var(--stroke-thin) solid var(--border-gift);
   border-radius: var(--radius-8);
-  background: var(--surface-default);
+  /* No own fill — the frame lies on the row background. */
+  background: none;
 }
 .ci__gift-img {
   display: flex;

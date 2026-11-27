@@ -17,7 +17,7 @@ import {
 import { money } from '../../../data/format';
 
 /**
- * look 'ref' (/checkout-mobile-items, 2026-11-24): rows laid out as the shop's new mobile cart
+ * look 'ref' (/checkout-mobile — main since 2026-11-25; look 'desktop' — /checkout-mobile-desktop-items): rows laid out as the shop's new mobile cart
  * (new-cart.lb.stage.horoshop.ua/checkout/?v=mobile — .cart-item / .cart-set):
  * - product: photo 64 + content column; name 13 (text/primary, as desktop); price row — «price  ~~old~~» on the left
  *   (old wraps under when there is no room, 8 apart), the line sum bold on the right; under it counter ↔ delete (16 above);
@@ -49,13 +49,13 @@ const extra = computed(() => Math.max(0, checkout.lines.length - MAX_THUMBS));
 
 /**
  * look 'ref', folded — mini-cart (Figma Checkout-v2 107:6143): the whole card is one button, padding 8:
- * a stack of up to 3 photos 40 (radius 4, each next 24 under the previous one, shadow «micro»; the mockup's «+N» pill
- * removed — user's decision), 16 → «N товарів на X грн» (16, count and sum bold), then the chevron in a
- * 40 box (instead of the mockup's pencil — user's decision). Tap opens the list with the usual title row.
+ * instead of the mockup's photo stack — the bag icon with a count badge (Figma -HOROSHOP-8318- Checkout 653:11122,
+ * 2026-11-25: bag-24 in icon/strong (main black) centred in a 40-wide box; the button is 48 high (12 + 24 + 12); badge — top −6 / right −8, min 16, px 4, pill,
+ * surface/action-primary, text 10 regular white, line 16; the count = item rows, as «N товарів»),
+ * 16 → «N товарів на X грн» (16, count and sum bold), then the chevron in a 40 box (instead of the mockup's pencil —
+ * user's decision). Tap opens the list with the usual title row.
  */
-const MINI_THUMBS = 3;
 const mini = computed(() => props.look === 'ref' && !isEmpty.value && !open.value);
-const miniThumbs = computed(() => checkout.lines.slice(0, MINI_THUMBS));
 </script>
 
 <template>
@@ -70,10 +70,10 @@ const miniThumbs = computed(() => checkout.lines.slice(0, MINI_THUMBS));
         :aria-label="`Ваше замовлення: ${goods(checkout.lines.length)} на ${money(subtotal)}. Показати товари`"
         @click="open = true"
       >
-        <span class="mm__stack" aria-hidden="true">
-          <span v-for="(l, i) in miniThumbs" :key="l.id" class="mm__img" :style="{ zIndex: MINI_THUMBS - i }">
-            <img v-if="image(l)" :src="image(l)" alt="" width="40" height="40" />
-            <Icon v-else name="no-photo-24" :size="24" />
+        <span class="mm__bag" aria-hidden="true">
+          <span class="mm__bag-icon">
+            <Icon name="bag-24" :size="24" />
+            <span class="mm__count">{{ checkout.lines.length }}</span>
           </span>
         </span>
         <span class="mm__text">
@@ -149,6 +149,71 @@ const miniThumbs = computed(() => checkout.lines.slice(0, MINI_THUMBS));
           </div>
         </li>
 
+        <!-- Product with a gift — as the reference (new-cart …/checkout/?v=mobile, .cart-set with a gift item):
+             laid out as a set — the product (photo 64, name, price bold, old price crossed), under it the gift (photo 44
+             indented 20, name, «Подарунок» tag + its old price crossed 16 after), then the shared footer under the
+             content column: unit price ↔ line sum bold, counter ↔ delete. -->
+        <li v-else-if="l.gift" class="mo__item mr mr--set">
+          <div class="mr__set-item">
+            <div class="mr__set-photo">
+              <img v-if="l.image" :src="l.image" alt="" />
+              <Icon v-else name="no-photo-24" :size="24" />
+            </div>
+            <div class="mr__content">
+              <p class="mr__name">{{ l.title }}</p>
+              <DiscountLabel v-if="showSmart(l) && l.smart" class="mr__smart" :label="`${l.smart.label} (−${money(l.smart.amount)})`" />
+              <p class="mr__prices">
+                <strong class="mr__cost">{{ money(unitPrice(l)) }}</strong>
+                <s v-if="crossedPrice(l) !== undefined" class="mr__old">{{ money(crossedPrice(l)!) }}</s>
+              </p>
+              <p v-if="l.minOrderText" class="mr__note">{{ l.minOrderText }}</p>
+            </div>
+          </div>
+          <div class="mr__set-item">
+            <div class="mr__set-photo mr__set-photo--small">
+              <img v-if="l.gift.image" :src="l.gift.image" alt="" />
+              <Icon v-else name="no-photo-24" :size="24" />
+            </div>
+            <div class="mr__content">
+              <p class="mr__name">{{ l.gift.title }}</p>
+              <p class="mr__gift-price">
+                <GiftTag />
+                <s class="mr__old">{{ money(l.gift.oldPrice) }}</s>
+              </p>
+            </div>
+          </div>
+          <div class="mr__set-footer">
+            <div class="mr__price-block">
+              <p class="mr__prices">
+                <span>{{ money(unitPrice(l)) }}</span>
+              </p>
+              <p class="mr__cost-box">
+                <s v-if="wholesaleOldSum(l) !== undefined" class="mr__old">{{ money(wholesaleOldSum(l)!) }}</s>
+                <strong class="mr__cost">{{ money(lineSum(l)) }}</strong>
+              </p>
+            </div>
+            <div class="mr__buttons">
+              <Counter :model-value="l.qty" :min="l.minQty ?? 1" @update:model-value="setQty(l.id, $event)" />
+              <button type="button" class="m-btn m-btn--small mo__delete" :aria-label="`Видалити «${title(l)}»`" @click="removeLine(l.id)">
+                <Icon name="delete-16" :size="16" />
+              </button>
+            </div>
+            <div v-if="l.wholesale?.length" class="mo__tiers mr__extra" role="group" aria-label="Оптові ціни">
+              <button
+                v-for="t in wholesaleTiers(l)"
+                :key="t.quantity"
+                type="button"
+                class="m-btn mo__tier"
+                :class="{ 'm-btn--primary': t.active }"
+                :aria-pressed="t.active"
+                @click="setWholesaleQty(l.id, t.quantity)"
+              >
+                {{ t.label }}
+              </button>
+            </div>
+          </div>
+        </li>
+
         <li v-else class="mo__item mr">
           <div class="mr__photo">
             <img v-if="l.image" :src="l.image" alt="" />
@@ -187,20 +252,6 @@ const miniThumbs = computed(() => checkout.lines.slice(0, MINI_THUMBS));
               >
                 {{ t.label }}
               </button>
-            </div>
-            <div v-if="l.gift" class="mo__gift mr__extra">
-              <div class="mo__photo mo__photo--part">
-                <img v-if="l.gift.image" :src="l.gift.image" alt="" width="48" height="48" />
-                <Icon v-else name="no-photo-24" :size="24" />
-              </div>
-              <div class="mo__body">
-                <p class="mr__name">{{ l.gift.title }}</p>
-                <p class="mo__price">
-                  <GiftTag />
-                  <s class="mo__old">{{ money(l.gift.oldPrice) }}</s>
-                  <span class="mo__note">за 1 грн</span>
-                </p>
-              </div>
             </div>
           </div>
         </li>
@@ -327,7 +378,7 @@ const miniThumbs = computed(() => checkout.lines.slice(0, MINI_THUMBS));
   box-sizing: border-box;
   width: 100%;
   margin: 0;
-  padding: var(--space-8);
+  padding: var(--space-12) var(--space-8); /* height 48: 12 + 24 + 12 */
   border: 0;
   background: none;
   color: var(--text-primary);
@@ -338,39 +389,34 @@ const miniThumbs = computed(() => checkout.lines.slice(0, MINI_THUMBS));
 .mm:focus-visible {
   outline: none;
 }
-.mm__stack {
-  position: relative;
-  display: flex;
-  flex: none;
-  isolation: isolate;
-}
-.mm__img {
-  position: relative;
+/* Bag + count (Figma 653:11122): the icon centred in a 40 box (as the chevron box on the right). */
+.mm__bag {
   display: flex;
   flex: none;
   align-items: center;
   justify-content: center;
   width: var(--space-40);
-  height: var(--space-40);
-  overflow: hidden;
-  border-radius: var(--radius-4);
-  background: var(--surface-hover);
-  /* Figma effect style «micro» (no token yet): drop shadow 4 / 0, blur 8, spread −4, #000 64 %. */
-  box-shadow: 4px 0 8px -4px rgba(0, 0, 0, 0.64);
-  color: var(--icon-secondary);
+  height: var(--space-24);
 }
-/* Each next photo slides 24 under the previous one (16 of it shows). */
-.mm__img + .mm__img {
-  margin-left: calc(-1 * var(--space-24));
+.mm__bag-icon {
+  position: relative;
+  display: flex;
+  color: var(--icon-strong); /* main black (icon/primary is black 50 %) */
 }
-/* Photos fit whole, as the item photos in the list (contain, white under the photo) — nothing is cut off. */
-.mm__img:has(img) {
-  background: var(--surface-default);
-}
-.mm__img img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.mm__count {
+  position: absolute;
+  top: -6px;
+  right: calc(-1 * var(--space-8));
+  box-sizing: border-box;
+  min-width: var(--space-16);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--surface-action-primary);
+  color: var(--text-primary-white);
+  font-size: 10px;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--font-line-height-16);
+  text-align: center;
 }
 .mm__text {
   flex: 1 1 0;
@@ -389,7 +435,7 @@ const miniThumbs = computed(() => checkout.lines.slice(0, MINI_THUMBS));
   flex: none;
   align-items: center;
   justify-content: center;
-  height: var(--space-40);
+  height: var(--space-24);
   padding: 0 var(--space-8);
   color: var(--icon-secondary);
 }
@@ -706,6 +752,15 @@ const miniThumbs = computed(() => checkout.lines.slice(0, MINI_THUMBS));
   font-size: var(--font-size-14);
   line-height: var(--font-line-height-20);
   white-space: nowrap;
+}
+/* Gift line (reference .cart-sticker + old price): the tag, the crossed price 16 after it (tag mr 8 + price ml 8). */
+.mr__gift-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-8);
+  font-size: var(--font-size-13);
+  line-height: var(--font-line-height-20);
 }
 .mr__smart {
   margin-bottom: var(--space-4);

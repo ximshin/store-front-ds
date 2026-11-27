@@ -9,7 +9,7 @@ import RecipientFields from './RecipientFields.vue';
 import CommentSection from './CommentSection.vue';
 
 const router = useRouter();
-withDefaults(defineProps<{ labels?: 'top' | 'left'; commentBottom?: boolean }>(), { labels: 'top', commentBottom: false });
+withDefaults(defineProps<{ labels?: 'top' | 'left'; commentBottom?: boolean; patronymicBelow?: boolean; contactsFirst?: boolean }>(), { labels: 'top', commentBottom: false, patronymicBelow: false, contactsFirst: false });
 
 const f = checkout.form;
 
@@ -32,7 +32,7 @@ async function onSubmit() {
         </template>
       </SectionTitle>
       <p class="form__indent form__lead ds-text-paragraph-p1">Менеджер зателефонує, уточнить доставку й оплату та оформить замовлення за вас.</p>
-      <RecipientFields :labels="labels" :comment="!commentBottom" />
+      <RecipientFields :labels="labels" :comment="!commentBottom" :patronymic-below="patronymicBelow" :contacts-first="contactsFirst" />
     </section>
 
     <CommentSection v-if="commentBottom" :labels="labels" />

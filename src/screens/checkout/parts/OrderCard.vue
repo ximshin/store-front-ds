@@ -19,14 +19,20 @@ import {
 // an applied code is seen only as its discount line in the totals (removable there, Figma 1:1172).
 // summaryOnly (/checkout-mobile, with split): only the summary card (promo, warning, totals) — the screen shows the
 // items itself; an empty cart renders nothing here.
+// itemsOnly (/checkout-v2-paycol, /checkout-v2-three, with split): only the items card — the totals live in another column.
+// hideCount (/checkout-v2-display): the title is just «Ваше замовлення», without the item count.
 // promoLook 'mobile' (/checkout-mobile): the promo field and its button are the mobile controls (m-field 48 / radius 16,
 // m-btn 48 «Ок» from checkout-mobile/parts/mobile.css, applied under the screen root .cm); logic unchanged.
-const props = withDefaults(defineProps<{ scrollHint?: boolean; split?: boolean; promoAlways?: boolean; summaryOnly?: boolean; promoLook?: 'ds' | 'mobile' }>(), {
+// promoIcon (/checkout-v2-steps, /checkout-v2-steps-plain): the discount icon coupon-16 left in the promo field.
+const props = withDefaults(defineProps<{ scrollHint?: boolean; split?: boolean; promoAlways?: boolean; summaryOnly?: boolean; itemsOnly?: boolean; hideCount?: boolean; promoLook?: 'ds' | 'mobile'; promoIcon?: boolean }>(), {
   scrollHint: false,
   split: false,
   promoAlways: false,
   summaryOnly: false,
+  itemsOnly: false,
+  hideCount: false,
   promoLook: 'ds',
+  promoIcon: false,
 });
 
 const router = useRouter();
@@ -39,7 +45,7 @@ function goods(n: number): string {
   return `${n} товарів`;
 }
 const title = computed(() =>
-  (props.scrollHint || props.split) && !isEmpty.value ? `Ваше замовлення · ${goods(checkout.lines.length)}` : 'Ваше замовлення',
+  (props.scrollHint || props.split) && !props.hideCount && !isEmpty.value ? `Ваше замовлення · ${goods(checkout.lines.length)}` : 'Ваше замовлення',
 );
 
 const itemsEl = ref<HTMLElement | null>(null);
@@ -98,7 +104,7 @@ function onFormFocusOut(e: FocusEvent) {
       <SectionTitle size="m" :title="title" :show-action="false" />
     </div>
 
-    <div v-if="!isEmpty" class="order__summary">
+    <div v-if="!isEmpty && !itemsOnly" class="order__summary">
       <!-- split: the promo row first, the field under it (Figma 1:1167). -->
       <!-- The row exists only while codes are applied; with none the field alone is shown (as on /checkout-accordion). -->
       <div v-if="split && !promoAlways && checkout.promos.length" class="order__promo">
@@ -154,6 +160,7 @@ function onFormFocusOut(e: FocusEvent) {
           :show-label="false"
           placeholder="Промокод або подарунковий сертифікат"
           clearable
+          :left-icon="promoIcon ? 'coupon-16' : undefined"
           :error="!!checkout.promoError"
           :hint="checkout.promoError"
           @update:model-value="checkout.promoError = ''"

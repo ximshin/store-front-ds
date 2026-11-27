@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Screens index (directive_screens_vue, Phase 5): tiles are built from the registry — nothing is hardcoded here.
-// Two tabs — «Десктоп» / «Мобільна версія» (registry field platform); the tab lives in the URL (?v=mobile), so
+// Tabs — «Десктоп» / «Варіанти десктопу» / «Мобільна версія» (registry field platform); the tab lives in the URL (?v=…), so
 // «back» from a screen returns to the same tab.
 import { computed } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
@@ -8,18 +8,20 @@ import { screens } from './registry';
 import Icon from '../components/Icon/Icon.vue';
 import Tabs from '../components/Tabs/Tabs.vue';
 
-type Platform = 'desktop' | 'mobile';
+type Platform = 'desktop' | 'desktop-variants' | 'mobile';
+const PLATFORMS: Platform[] = ['desktop', 'desktop-variants', 'mobile'];
 const route = useRoute();
 const router = useRouter();
-const platform = computed<Platform>(() => (route.query.v === 'mobile' ? 'mobile' : 'desktop'));
+const platform = computed<Platform>(() => (PLATFORMS.includes(route.query.v as Platform) ? (route.query.v as Platform) : 'desktop'));
 const ofPlatform = (p: Platform) => screens.filter((s) => (s.platform ?? 'desktop') === p);
 const tabs = computed(() => [
   { value: 'desktop', label: `Десктоп · ${ofPlatform('desktop').length}` },
+  { value: 'desktop-variants', label: `Варіанти десктопу · ${ofPlatform('desktop-variants').length}` },
   { value: 'mobile', label: `Мобільна версія · ${ofPlatform('mobile').length}` },
 ]);
 const shown = computed(() => ofPlatform(platform.value));
 function setPlatform(v: string) {
-  router.replace({ query: v === 'mobile' ? { v } : {} });
+  router.replace({ query: v === 'desktop' ? {} : { v } });
 }
 
 // Pages: Storybook is built into /storybook/ next to the app. Dev: it runs as its own server (npm run storybook, 6006).
@@ -38,7 +40,8 @@ const storybookUrl = import.meta.env.DEV ? 'http://localhost:6006/' : import.met
     <Tabs :items="tabs" :model-value="platform" aria-label="Версія" @update:model-value="setPlatform" />
 
     <div class="index__grid" role="tabpanel">
-      <RouterLink v-for="s in shown" :key="s.id" :to="s.route" class="tile">
+      <!-- Tile: a short phrase (description); the full text (details) — the browser tooltip on hover. -->
+      <RouterLink v-for="s in shown" :key="s.id" :to="s.route" class="tile" :title="s.details">
         <span class="tile__name ds-text-heading-h4">{{ s.name }}</span>
         <span class="tile__desc ds-text-paragraph-p1">{{ s.description }}</span>
         <span class="tile__meta">
@@ -103,7 +106,13 @@ const storybookUrl = import.meta.env.DEV ? 'http://localhost:6006/' : import.met
   border-color: var(--border-hover-card);
   box-shadow: var(--shadow-m);
 }
+/* At most 2 lines — a longer description does not stretch the grid (the full text is in the tooltip). */
 .tile__desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   color: var(--text-secondary);
 }
 .tile__meta {

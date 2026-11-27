@@ -10,7 +10,7 @@
 // padding 2, segments 32 (padding 8); active — surface/action-primary with text/primary-white, radius 6.
 // A radio group: role="radiogroup" / role="radio", arrows move the choice.
 const props = withDefaults(
-  defineProps<{ modelValue: string; items: { value: string; label: string }[]; label?: string; look?: 'soft' | 'filled' | 'compact' | 'compact-dark' }>(),
+  defineProps<{ modelValue: string; items: { value: string; label: string }[]; label?: string; look?: 'soft' | 'filled' | 'compact' | 'compact-dark' | 'line' }>(),
   { label: undefined, look: 'soft' },
 );
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
@@ -137,5 +137,42 @@ function onKey(e: KeyboardEvent, i: number) {
 .ms--compact-dark .ms__item.is-active:focus-visible {
   outline-color: var(--text-primary-white);
   outline-offset: calc(-2 * var(--stroke-thin));
+}
+/* line (/checkout-v2-steps, in the style of the line fields): underlined tabs across the form width — the row has
+   the field line (border/input) at the bottom; tabs hug the labels (16/24, 24 apart), the active one is text/primary
+   with a 2 px line in text/primary over the row line, the other — text/secondary. Height 56, like a field. */
+.ms--line {
+  gap: var(--space-24);
+  padding: 0;
+  border-bottom: var(--stroke-thin) solid var(--border-input);
+  border-radius: 0;
+  background: none;
+}
+.ms--line .ms__item {
+  position: relative;
+  flex: none;
+  min-height: 56px;
+  padding: var(--space-16) 0;
+  border-radius: 0;
+  color: var(--text-secondary);
+  font: var(--font-weight-regular) var(--font-size-16) / var(--font-line-height-24) var(--font-sans), system-ui, sans-serif;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.ms--line .ms__item:hover,
+.ms--line .ms__item.is-active {
+  color: var(--text-primary);
+}
+.ms--line .ms__item.is-active {
+  background: none;
+}
+.ms--line .ms__item.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * var(--stroke-thin));
+  height: 2px;
+  background: currentColor;
 }
 </style>

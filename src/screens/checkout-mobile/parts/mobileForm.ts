@@ -56,9 +56,8 @@ export const mobile = reactive({
   mode: 'full' as MobileMode,
   lastName: '',
   firstName: '',
-  /** Optional, behind «Додати по батькові» (as /checkout-v2). */
+  /** Optional; always shown as its own field (no «Додати по батькові» button since 2026-11-25, as /checkout-v2). */
   patronymic: '',
-  showPatronymic: false,
   phone: '',
   email: '',
   country: '',
@@ -168,7 +167,7 @@ export async function submitMobile(): Promise<boolean> {
     number: 4900 + Math.floor(Math.random() * 99),
     phone: mobile.phone,
     email: mobile.email,
-    recipient: [mobile.lastName, mobile.firstName, mobile.showPatronymic ? mobile.patronymic : ''].map((x) => x.trim()).filter(Boolean).join(' '),
+    recipient: [mobile.lastName, mobile.firstName, mobile.patronymic].map((x) => x.trim()).filter(Boolean).join(' '),
     delivery: quick
       ? ''
       : `${d.label}, ${mobile.city}${mobile.delivery === 'courier' ? `: ${mobile.address}` : mobile.branch ? `: ${mobile.branch}` : ''}`,

@@ -4,14 +4,14 @@
 // Recipient — RecipientFields (shared with the quick order). Delivery: Країна, Місто (select),
 // delivery method and payment — Select Size=rich (name + logo / second line), branch + map.
 // Wired to the same mock store as /checkout (src/data/checkout.ts).
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   Input, Select, SelectRichOption, SectionTitle, ButtonFront, Icon, CheckoutConfirm,
 } from '../../../main';
 import {
   checkout, deliveryOptions, paymentOptions, countries, popularCountries, cities, deliveryOption, paymentOption, isEmpty,
-  setDelivery, setPayment, validateField, clearError, submitOrder, logout,
+  setDelivery, setPayment, validateField, validateFields, clearError, submitOrder, logout, type FormField,
 } from '../../../data/checkout';
 import { showToast } from '../../../data/toast';
 import RecipientFields from './RecipientFields.vue';
@@ -22,7 +22,16 @@ import SingleOption from './SingleOption.vue';
 // labels left (/checkout-v2-labels-left): field labels in a column on the left (DS Label position=Left); elements
 // without a label (payment, links, notes, confirm) carry .form__indent and line up with the fields (screen CSS).
 // commentBottom (/checkout-v2-comment): the comment is its own section after «Оплата» (CommentSection, Figma 85:3784).
-const props = withDefaults(defineProps<{ single?: boolean; labels?: 'top' | 'left'; narrow?: boolean; commentBottom?: boolean }>(), { single: false, labels: 'top', narrow: false, commentBottom: false });
+// parts (/checkout-v2-paycol, /checkout-v2-three): which blocks this instance renders — the screen splits the form
+// across columns (several instances share the store). accordion (/checkout-v2-accordion): one section open at a time.
+export type FormPart = 'recipient' | 'delivery' | 'payment' | 'comment' | 'confirm';
+const props = withDefaults(defineProps<{ parts?: FormPart[]; accordion?: boolean; single?: boolean; labels?: 'top' | 'left'; narrow?: boolean; commentBottom?: boolean; patronymicBelow?: boolean; contactsFirst?: boolean; gated?: boolean; paymentLogo?: boolean }>(), { parts: undefined, accordion: false, single: false, labels: 'top', narrow: false, commentBottom: false, patronymicBelow: false, contactsFirst: false, gated: false, paymentLogo: false });
+// paymentLogo (/checkout-v2-steps): payment options without the icon on the left; a brand mark (monobank) goes to the
+// right of the title, as the carrier logo in delivery.
+const brandIcon = (icon: string) => (icon === 'payment-24' ? '' : icon);
+// gated (/checkout-v2-steps, as /checkout-mobile): the city appears once a country is chosen; delivery, branch / address
+// and payment stay disabled until the city is chosen.
+const locked = computed(() => props.gated && !f.city.trim());
 
 const router = useRouter();
 const f = checkout.form;
@@ -93,6 +102,10 @@ watchEffect(() => {
 });
 const deliveryStatic = computed(() => props.single || deliveryList.value.length === 1);
 const paymentStatic = computed(() => props.single || paymentList.value.length === 1);
+// A single remaining method (instalments → only Nova Poshta, pickup → only cash) counts as chosen: the branch field
+// shows and the «Оберіть…» check passes.
+watch(deliveryStatic, (v) => { if (v) f.deliveryPicked = true; }, { immediate: true });
+watch(paymentStatic, (v) => { if (v) f.paymentPicked = true; }, { immediate: true });
 const deliveryNote = computed(() =>
   !props.single && deliveryList.value.length === 1 ? 'Для «Покупки частинами» доступна лише доставка Новою Поштою' : '',
 );
@@ -125,17 +138,54 @@ function pickPayment(id: typeof f.payment) {
 async function onSubmit() {
   if (await submitOrder()) router.push('/checkout-success');
 }
+const has = (part: FormPart) => !props.parts || props.parts.includes(part);
+
+/*
+ * accordion (/checkout-v2-accordion, ref. briefs/checkout/refs-desktop/ui-accordion-41.png): sections 0 Одержувач,
+ * 1 Доставка, 2 Оплата. One is open (step); the ones already passed (index < reached) collapse into a summary line
+ * with «Змінити»; the ones ahead show only a muted title. «Далі» checks the section's fields and opens the next one not
+ * passed yet. The comment and the confirm block appear once «Оплата» is reached.
+ */
+const step = ref(0);
+const reached = ref(0);
+const stepFields: FormField[][] = [['lastName', 'firstName', 'phone', 'email'], ['city', 'branch', 'courierAddress'], []];
+const sectionEls = ref<HTMLElement[]>([]);
+function stepState(i: number): 'open' | 'done' | 'todo' | undefined {
+  if (!props.accordion) return undefined;
+  if (i === step.value) return 'open';
+  return i <= reached.value ? 'done' : 'todo';
+}
+const isOpen = (i: number) => !props.accordion || step.value === i;
+function next(i: number) {
+  if (!validateFields(stepFields[i])) return;
+  reached.value = Math.max(reached.value, i + 1);
+  step.value = reached.value;
+  sectionEls.value[step.value]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function edit(i: number) {
+  step.value = i;
+}
+const recipientSummary = computed(() =>
+  [[f.lastName, f.firstName, f.patronymic].filter(Boolean).join(' '), f.phone, f.email].filter(Boolean).join(' · '),
+);
+const deliverySummary = computed(() =>
+  [deliveryOption.value.name, f.city, f.delivery === 'courier' ? f.courierAddress : f.branch].filter(Boolean).join(' · '),
+);
+const tail = computed(() => !props.accordion || reached.value >= 2);
+
 function showMap() {
   showToast('info', 'Карта відділень з’явиться в наступній версії');
 }
 </script>
 
 <template>
-  <div class="form" :class="{ 'form--left': labels === 'left' }">
-    <section class="form__section">
+  <div class="form" :class="{ 'form--left': labels === 'left', 'form--accordion': accordion }">
+    <section v-if="has('recipient')" :ref="(el) => (sectionEls[0] = el as HTMLElement)" class="form__section" :class="stepState(0) && `form__section--${stepState(0)}`">
       <SectionTitle class="form__head" size="m" title="Одержувач замовлення">
         <template #action>
-          <ButtonFront v-if="!checkout.loggedIn" type="flat" size="m" label="Увійти" show-left-icon @click="router.push('/checkout-login')">
+          <ButtonFront v-if="stepState(0) === 'done'" type="flat" size="m" label="Змінити" @click="edit(0)" />
+          <template v-else-if="stepState(0) === 'todo'" />
+          <ButtonFront v-else-if="!checkout.loggedIn" type="flat" size="m" label="Увійти" show-left-icon @click="router.push('/checkout-login')">
             <template #left><Icon name="user-24" /></template>
           </ButtonFront>
           <ButtonFront v-else type="flat" size="m" label="Вийти" show-left-icon @click="logout">
@@ -143,12 +193,21 @@ function showMap() {
           </ButtonFront>
         </template>
       </SectionTitle>
-      <RecipientFields :labels="labels" :comment="!commentBottom" />
+      <template v-if="isOpen(0)">
+        <RecipientFields :labels="labels" :comment="!commentBottom" :patronymic-below="patronymicBelow" :contacts-first="contactsFirst" />
+        <div v-if="accordion" class="form__next">
+          <ButtonFront type="primary" size="l" label="Далі" @click="next(0)" />
+        </div>
+      </template>
+      <p v-else-if="stepState(0) === 'done'" class="form__summary ds-text-paragraph-p1">{{ recipientSummary }}</p>
     </section>
 
-    <section class="form__section">
-      <SectionTitle class="form__head" size="m" title="Доставка" :show-action="false" />
-      <div class="form__items">
+    <section v-if="has('delivery')" :ref="(el) => (sectionEls[1] = el as HTMLElement)" class="form__section" :class="stepState(1) && `form__section--${stepState(1)}`">
+      <SectionTitle class="form__head" size="m" title="Доставка" :show-action="stepState(1) === 'done'">
+        <template #action><ButtonFront type="flat" size="m" label="Змінити" @click="edit(1)" /></template>
+      </SectionTitle>
+      <p v-if="!isOpen(1) && stepState(1) === 'done'" class="form__summary ds-text-paragraph-p1">{{ deliverySummary }}</p>
+      <div v-if="isOpen(1)" class="form__items">
         <!-- Країна: search right in the field. -->
         <Select
           v-model:show-list="open.country"
@@ -204,19 +263,21 @@ function showMap() {
           v-if="!deliveryStatic"
           v-model:show-list="open.delivery"
           size="rich"
+          :class="{ 'is-empty': !f.deliveryPicked }"
+          :disabled="locked"
           :label-position="labels"
           label="Спосіб доставки"
-          :placeholder="deliveryOption.name"
-          :sub="deliveryOption.sub"
+          :placeholder="f.deliveryPicked ? deliveryOption.name : 'Оберіть спосіб доставки'"
+          :sub="f.deliveryPicked ? deliveryOption.sub : ''"
         >
-          <template v-if="deliveryOption.logo" #logo><img :src="deliveryOption.logo" alt="" width="16" height="16" /></template>
+          <template v-if="f.deliveryPicked && deliveryOption.logo" #logo><img :src="deliveryOption.logo" alt="" width="16" height="16" /></template>
           <template #list>
             <SelectRichOption
               v-for="d in deliveryList"
               :key="d.id"
               :title="d.name"
               :sub="d.sub"
-              :checked="d.id === f.delivery"
+              :checked="f.deliveryPicked && d.id === f.delivery"
               @click="pickDelivery(d.id)"
             >
               <template v-if="d.logo" #logo><img :src="d.logo" alt="" width="16" height="16" /></template>
@@ -224,10 +285,12 @@ function showMap() {
           </template>
         </Select>
         <!-- Only one delivery method: static text with the label, the branch field stays below. -->
-        <SingleOption v-else :filled="single" :label-position="labels" label="Спосіб доставки" :title="deliveryOption.name" :sub="deliveryOption.sub" :logo="deliveryOption.logo" :note="deliveryNote" />
-        <div v-if="deliveryOption.branches" class="form__address">
+        <p v-if="e.deliveryPicked" class="form__indent form__error ds-text-special-special-12-regular">{{ e.deliveryPicked }}</p>
+        <SingleOption v-if="deliveryStatic" :filled="single" :label-position="labels" label="Спосіб доставки" :title="deliveryOption.name" :sub="deliveryOption.sub" :logo="deliveryOption.logo" :note="deliveryNote" />
+        <!-- Not chosen yet (gated): no branch / address / pickup note until a method is picked. -->
+        <div v-if="f.deliveryPicked && deliveryOption.branches" class="form__address">
           <div class="form__grow">
-            <Select v-model:show-list="open.branch" class="form__list" size="l" :label-position="labels" label="Відділення" :placeholder="f.branch || 'Оберіть відділення'">
+            <Select v-model:show-list="open.branch" class="form__list" :class="{ 'is-empty': !f.branch }" size="l" :disabled="locked" :label-position="labels" label="Відділення" :placeholder="f.branch || 'Оберіть відділення'">
               <template #list>
                 <SelectRichOption v-for="b in deliveryOption.branches" :key="b" :title="b" sub="" :checked="b === f.branch" @click="pickBranch(b)" />
               </template>
@@ -235,14 +298,15 @@ function showMap() {
             <p v-if="e.branch" class="form__indent form__error ds-text-special-special-12-regular">{{ e.branch }}</p>
           </div>
           <!-- narrow (fields 400): icon only, a square 40 next to the branch field; the field is shorter by the button + gap, the row keeps the common right edge. -->
-          <ButtonFront type="default" size="l" label="Обрати на мапі" show-left-icon :show-label="!narrow" :aria-label="narrow ? 'Обрати на мапі' : undefined" :title="narrow ? 'Обрати на мапі' : undefined" @click="showMap">
+          <ButtonFront type="default" size="l" label="Обрати на мапі" :disabled="locked" show-left-icon :show-label="!narrow" :aria-label="narrow ? 'Обрати на мапі' : undefined" :title="narrow ? 'Обрати на мапі' : undefined" @click="showMap">
             <template #left><Icon name="location-stroke" /></template>
           </ButtonFront>
         </div>
         <Input
-          v-else-if="f.delivery === 'courier'"
+          v-else-if="f.deliveryPicked && f.delivery === 'courier'"
           v-model="f.courierAddress"
           size="l"
+          :disabled="locked"
           :label-position="labels"
           label="Адреса доставки"
           placeholder="Вулиця, будинок, квартира"
@@ -250,45 +314,58 @@ function showMap() {
           :hint="e.courierAddress"
           @focusout="validateField('courierAddress')"
         />
-        <p v-else class="form__indent form__note ds-text-paragraph-p1">Магазин: Київ, вул. Велика Васильківська, 72 · Пн–Сб 10:00–20:00</p>
+        <p v-else-if="f.deliveryPicked" class="form__indent form__note ds-text-paragraph-p1">Магазин: Київ, вул. Велика Васильківська, 72 · Пн–Сб 10:00–20:00</p>
+        <div v-if="accordion" class="form__next">
+          <ButtonFront type="primary" size="l" label="Далі" @click="next(1)" />
+        </div>
       </div>
     </section>
 
     <!-- Labels left: «Оплата» sits in the label column, on the level of the select (form__section--row). -->
-    <section class="form__section" :class="{ 'form__section--row': labels === 'left' }">
+    <section
+      v-if="has('payment')"
+      :ref="(el) => (sectionEls[2] = el as HTMLElement)"
+      class="form__section"
+      :class="[{ 'form__section--row': labels === 'left', 'form__section--locked': locked }, stepState(2) && `form__section--${stepState(2)}`]"
+    >
       <SectionTitle class="form__head" size="m" title="Оплата" :show-action="false" />
-      <div class="form__items">
+      <div v-if="isOpen(2)" class="form__items">
         <!-- Payment — the same rich select as delivery: method / terms. -->
         <Select
           v-if="!paymentStatic"
           v-model:show-list="open.payment"
           size="rich"
+          :disabled="locked"
           :show-label="false"
-          :placeholder="paymentOption.label"
-          :sub="paymentSub"
+          :placeholder="f.paymentPicked ? paymentOption.label : 'Оберіть спосіб оплати'"
+          :sub="f.paymentPicked ? paymentSub : ''"
         >
-          <template #icon><Icon :name="paymentOption.icon" :size="16" /></template>
+          <template v-if="f.paymentPicked && !paymentLogo" #icon><Icon :name="paymentOption.icon" :size="16" /></template>
+          <template v-if="f.paymentPicked && paymentLogo && brandIcon(paymentOption.icon)" #logo><Icon :name="brandIcon(paymentOption.icon)" :size="16" /></template>
           <template #list>
             <SelectRichOption
               v-for="p in paymentList"
               :key="p.id"
               :title="p.label"
               :sub="p.sub"
-              :checked="p.id === f.payment"
+              :checked="f.paymentPicked && p.id === f.payment"
               @click="pickPayment(p.id)"
             >
-              <template #icon><Icon :name="p.icon" :size="16" /></template>
+              <template v-if="!paymentLogo" #icon><Icon :name="p.icon" :size="16" /></template>
+              <template v-if="paymentLogo && brandIcon(p.icon)" #logo><Icon :name="brandIcon(p.icon)" :size="16" /></template>
             </SelectRichOption>
           </template>
         </Select>
         <!-- Only one payment method: static text, no select (research_single_option.md). -->
-        <SingleOption v-else :filled="single" :title="paymentOption.label" :sub="paymentSub" :icon="paymentOption.icon" :note="paymentNote" />
+        <p v-if="e.paymentPicked" class="form__indent form__error ds-text-special-special-12-regular">{{ e.paymentPicked }}</p>
+        <SingleOption v-if="paymentStatic" :filled="single" :title="paymentOption.label" :sub="paymentSub" :icon="paymentLogo ? undefined : paymentOption.icon" :note="paymentNote" />
       </div>
     </section>
 
-    <CommentSection v-if="commentBottom" :labels="labels" />
+    <CommentSection v-if="commentBottom && has('comment') && tail" :labels="labels" />
 
     <CheckoutConfirm
+      v-if="has('confirm') && tail"
       v-model:newsletter="f.newsletter"
       v-model:terms="f.terms"
       class="form__indent form__confirm"
@@ -399,5 +476,18 @@ function showMap() {
   .form__address > :deep(.ds-button-wrap) {
     margin-top: 0;
   }
+}
+
+/* ---------- accordion (/checkout-v2-accordion) ---------- */
+.form__next {
+  display: flex;
+  padding-top: var(--space-24);
+}
+.form__summary {
+  margin: 0;
+  color: var(--text-secondary);
+}
+.form__section--todo :deep(.ds-section-title__text) {
+  color: var(--text-secondary);
 }
 </style>

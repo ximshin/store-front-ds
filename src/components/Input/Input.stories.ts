@@ -23,6 +23,7 @@ const meta = {
   },
   argTypes: {
     clearable: { control: 'boolean', description: 'Крестик очистки справа, когда поле заполнено (событие clear)' },
+    leftIcon: { control: 'text', description: 'Иконка слева (Show left-items), имя со страницы Icons — напр. coupon-16' },
     modelValue: { control: 'text', description: 'Figma: Filled (пусто → placeholder)' },
     label: { control: 'text', description: 'Figma: Label' },
     showLabel: { control: 'boolean', description: 'Figma: Show label' },
@@ -101,6 +102,11 @@ export const AllVariants: Story = {
 /** Поле с крестиком очистки (`clearable`) — промокод, поиск адреса. */
 export const Clearable: Story = {
   args: { label: 'Промокод', modelValue: 'SMART10', clearable: true, size: 'l' },
+};
+
+/** Иконка слева (`leftIcon`, Show left-items) — промокод с иконкой скидки coupon-16. */
+export const LeftIcon: Story = {
+  args: { label: 'Промокод', placeholder: 'Промокод або подарунковий сертифікат', modelValue: '', leftIcon: 'coupon-16', clearable: true, size: 'l' },
 };
 
 /** Многострочное поле (textarea): 3 строки, растёт по тексту до 8, крестик очистки у верхнего края. */

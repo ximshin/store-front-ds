@@ -8,6 +8,7 @@
  * Filled → определяется значением `modelValue` (пусто → placeholder), State=Disabled → disabled, State=Error → error,
  * Label position → labelPosition (top | left), Size → size (m | l). Подсказка ошибки — prop `hint`.
  * `clearable` — крестик очистки справа (right-items InputMain, cross-16 icon/strong), когда есть значение; событие `clear`.
+ * `leftIcon` — иконка слева (Show left-items InputMain): имя иконки со страницы Icons, цвет icon/primary.
  */
 import { computed } from 'vue';
 import InputMain from '../InputMain/InputMain.vue';
@@ -34,6 +35,8 @@ const props = withDefaults(
     /** Крестик очистки справа, когда поле заполнено. */
     clearable?: boolean;
     clearLabel?: string;
+    /** Иконка слева в поле (left-items), например coupon-16 у промокода. */
+    leftIcon?: string;
     /** Многострочное поле (textarea): растёт по тексту от `rows` строк, крестик очистки — у верхнего края. */
     multiline?: boolean;
     /** Минимум строк в режиме multiline. */
@@ -54,6 +57,7 @@ const props = withDefaults(
     name: undefined,
     clearable: false,
     clearLabel: 'Очистити',
+    leftIcon: undefined,
     multiline: false,
     rows: 3,
   },
@@ -89,10 +93,14 @@ function onInput(event: Event) {
       :size="size"
       :disabled="disabled"
       :error="error"
+      :show-left-items="!!leftIcon"
       :show-right-items="showRightItems"
       :show-hint="showHint"
       :hint="hint"
     >
+      <template v-if="leftIcon" #left-items>
+        <span class="ds-input__lead" aria-hidden="true"><Icon :name="leftIcon" /></span>
+      </template>
       <template #main-items>
         <textarea
           v-if="multiline"
@@ -227,6 +235,13 @@ function onInput(event: Event) {
 .ds-input__control::placeholder {
   color: var(--text-disabled);
   opacity: 1;
+}
+.ds-input__lead {
+  display: inline-flex;
+  color: var(--icon-primary);
+}
+.ds-input.is-disabled .ds-input__lead {
+  color: var(--icon-secondary);
 }
 .ds-input__clear {
   display: inline-flex;
